@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import axios from 'axios'
 import Register from './Component/Register'
 import LoginForm from './Component/Login'
+import { Outlet } from 'react-router-dom'
+import Navbar from './Component/Navbar'
 
 const App = () => {
   const URL = 'http://localhost:5000/api/test'
@@ -21,8 +23,8 @@ const App = () => {
     <div>
       {/* <h1>{message}...</h1>
       <h1 className="text-center text-red-500">TESTING</h1> */}
-      <Register />
-      <LoginForm/>
+      <Navbar/>
+      <Outlet/>
     </div>
   )
 }
