@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import { Link, useNavigate } from "react-router-dom";
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -50,12 +52,31 @@ const LoginForm = () => {
               required
             />
           </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="remember-me"
+                className="mr-2"
+              />
+              <label htmlFor="remember-me">Remember me</label>
+            </div>
+            <Link to="/forgot-password" className="text-blue-500">
+              Forgot password?
+            </Link>
+          </div>
           <button
             type="submit"
             className="w-full bg-blue-500 text-white p-2 rounded-lg"
           >
             Login
           </button>
+          <div className="text-center mt-4">
+            Don't have an account?{" "}
+            <Link to="/register" className="text-blue-500">
+              Sign up
+            </Link>
+          </div>
         </form>
       </div>
     </div>

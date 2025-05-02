@@ -1,10 +1,13 @@
 import React from 'react'
+import { assets } from '../assets/assets'
 
 const Home = () => {
     return (
-        <div className='text-white h-screen  w-full flex flex-col items-center justify-center gap-2'>
+        <div className='text-white h-screen  w-full flex flex-col items-center justify-center gap-2 bg-slate-900'>
 
-            <h1 className='text-xl md:text-2xl text-blue-900 font-bold '>Get Started</h1>
+            <img src={assets.header_img} alt="logo" className='h-40 w-40 mb-1' />
+
+            <h1 className='text-xl md:text-2xl text-yellow-400 font-bold '>Hey Developer!👏</h1>
             <p className='md:text-5xl text-3xl p-2 text-center'>Boost your productivity. <br /> Start using our app today.
 
             </p>

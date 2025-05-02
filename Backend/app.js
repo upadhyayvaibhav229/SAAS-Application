@@ -9,13 +9,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/api/test", (req, res) => {
-    // res.send("Server is running");
-    res.json({message: "Backend Connected Successfully"})
-});
+// app.get("/api/test", (req, res) => {
+//     // res.send("Server is running");
+//     res.json({message: "Backend Connected Successfully"})
+// });
 
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// routing
+import userRouter from "./router/user.route.js";
+
+app.use('/api/users', userRouter);
+
 
 export {app}
