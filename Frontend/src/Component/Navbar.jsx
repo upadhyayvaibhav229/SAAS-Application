@@ -9,7 +9,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { assets } from "../assets/assets";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const navigation = [
@@ -24,8 +24,22 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const handleSignOut = () => setIsLoggedIn(false);
+  // const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [user, setUser] = useState(null)
+  const handleSignOut = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/login"); // or navigate("/") if you prefer
+  };
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    console.log("user from localstorage", user);
+    if (user) {
+      setUser(user)
+    }
+  }, [])
   const navigate = useNavigate();
 
   return (
@@ -86,47 +100,27 @@ export default function Navbar() {
             </button>
 
             {/* Profile dropdown */}
-            {isLoggedIn ? (
+            {user ? (
               <Menu as="div" className="relative ml-3">
                 <div>
                   <MenuButton className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden">
-                    <span className="absolute -inset-1.5" />
                     <span className="sr-only">Open user menu</span>
                     <img
-                      alt=""
+                      alt="User Profile"
                       src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      className="size-8 rounded-full"
+                      className="h-8 w-8 rounded-full"
                     />
                   </MenuButton>
                 </div>
-                <MenuItems
-                  transition
-                  className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 transition focus:outline-hidden data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
-                >
+                <MenuItems>
                   <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                    >
-                      Your Profile
-                    </a>
+                    <a href="#">Your Profile {user.firstName}</a>
                   </MenuItem>
                   <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                    >
-                      Settings
-                    </a>
+                    <a href="#">Settings</a>
                   </MenuItem>
                   <MenuItem>
-                    <a
-                      href="#"
-                      className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
-                      onClick={handleSignOut}
-                    >
-                      Sign out
-                    </a>
+                    <a href="#" onClick={handleSignOut}>Sign out</a>
                   </MenuItem>
                 </MenuItems>
               </Menu>
@@ -137,6 +131,7 @@ export default function Navbar() {
                 </button>
               </div>
             )}
+
           </div>
         </div>
       </div>

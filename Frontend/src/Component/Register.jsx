@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function SignupForm() {
@@ -10,16 +10,23 @@ export default function SignupForm() {
     password: "",
   });
   const api = "http://localhost:5000/api/users/register";
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null)
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(api, form);
-      console.log(response);
+      const res = await axios.post(api, form);
+      console.log("Response:", res.data);
+      
+      if (res.data?.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        navigate('/');
+      }
     } catch (error) {
       console.log("Registration failed", error);
     }
   };
-
+  
   
 
 
@@ -51,7 +58,7 @@ export default function SignupForm() {
               />
               <label
                 htmlFor="email"
-                className="absolute left-2 top-5 text-gray-500 transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-indigo-500 text-xl"
+                className="absolute left-2 -top-1 text-gray-500 transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-indigo-500 text-xl"
               >
                 First Name
               </label>
@@ -67,7 +74,7 @@ export default function SignupForm() {
               />
               <label
                 htmlFor="lastname"
-                className="absolute left-2 top-5 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-indigo-500 "
+                className="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-indigo-500 "
               >
                 Last Name
               </label>
@@ -85,7 +92,7 @@ export default function SignupForm() {
             />
             <label
               htmlFor="email"
-              className="absolute left-2 top-5 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-indigo-500 "
+              className="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-indigo-500 "
             >
               Email
             </label>
@@ -101,7 +108,7 @@ export default function SignupForm() {
             />
             <label
               htmlFor="password"
-              className="absolute left-2 top-5 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-indigo-500 "
+              className="absolute left-2 top-1 text-gray-500 text-sm transition-all peer-placeholder-shown:top-2.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-sm peer-focus:text-indigo-500 "
             >
               Password
             </label>
