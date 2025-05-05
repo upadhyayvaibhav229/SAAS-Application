@@ -40,6 +40,9 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  refreshToken: {
+    type: String
+  },
 });
 
 // ✅ Password encryption before saving
@@ -72,7 +75,7 @@ userSchema.methods.generateAccessToken = function () {
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+      expiresIn: process.env.ACCESS_TOKEN_EXPRIY,
     }
   );
 };

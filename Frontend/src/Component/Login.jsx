@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,8 +14,17 @@ const LoginForm = () => {
     setError("");
 
     try {
-      const response = await axios.post("/api/login", { email, password });
+      // Sending POST request to the backend API for login
+      const response = await axios.post(
+        "/api/users/login", 
+        { email, password }, 
+        { withCredentials: true } // This will ensure that cookies (access & refresh tokens) are sent and received.
+      );
+
       console.log("Login successful", response.data);
+
+      // Navigate to a protected route (e.g. dashboard) after successful login
+      navigate("/"); // Or any page you want to redirect the user to
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
     }
