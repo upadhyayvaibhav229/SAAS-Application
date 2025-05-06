@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  isVerified: {
+  isAccountVerified: {
     type: Boolean,
     default: false,
   },
@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-  verifyOtpExpired: {
+  verifyOtpExpiredAt: {
     type: Number,
     default: 0,
   },

@@ -21,6 +21,7 @@ app.use(express.urlencoded({ extended: true })); // for form data
 import userRouter from "./router/user.route.js";
 
 app.use('/api/users', userRouter);
+// localhost:5000/api/users
 
 
 export { app }
