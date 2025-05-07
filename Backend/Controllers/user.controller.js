@@ -4,7 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import transporter from "../config/nodemailer.js";
-
+import nodemailer from "nodemailer";
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -23,6 +23,7 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
     throw new ApiError(500, "Something went wrong while generating tokens");
   }
 };
+
 const registerUser = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
   console.log("Register Request:", req.body);
@@ -211,13 +212,15 @@ const refershAccessToken = asyncHandler(async (req, res) => {
 });
 
 const SendverifyOtp = asyncHandler(async (req, res, next) => {
-  const { userId } = req.body;
-  console.log("received userId", userId);
+const { userId } = req.body;
+  console.log("received userId", userId); 
+
+  console.log(req.body,"this is req body");
 
   // Fetch the user by userId
   const user = await User.findById(userId);
 
-  // Check if user is found
+
   if (!user) {
     return res.status(400).json({
       message: "User not found",
@@ -256,10 +259,14 @@ const SendverifyOtp = asyncHandler(async (req, res, next) => {
                   Welcome aboard,
               The MERN Auth Team`,
   };
+  console.log(mailOptions);
+  
 
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log("Message sent: %s", info.messageId);
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+
   } catch (error) {
     console.log("Error sending email:", error);
     return res.status(500).json({
