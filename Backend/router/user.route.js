@@ -16,7 +16,7 @@ router.post("/login", loginUser);
 router.post("/logout", logoutUser, verifyJwt);
 router.post('/refresh-token', refershAccessToken);
 router.post("/send-otp",  verifyJwt, SendverifyOtp);
-router.post("/verify-account", verifyEmail);
+router.post("/verify-account", verifyJwt,verifyEmail);
 
 
 export default router;

@@ -212,14 +212,13 @@ const refershAccessToken = asyncHandler(async (req, res) => {
 });
 
 const SendverifyOtp = asyncHandler(async (req, res, next) => {
-const { userId } = req.body;
-  console.log("received userId", userId); 
+  const { userId } = req.body;
+  console.log("received userId", userId);
 
-  console.log(req.body,"this is req body");
+  console.log(req.body, "this is req body");
 
   // Fetch the user by userId
   const user = await User.findById(userId);
-
 
   if (!user) {
     return res.status(400).json({
@@ -241,32 +240,45 @@ const { userId } = req.body;
   await user.save();
 
   const mailOptions = {
-    from: process.env.SMTP_USER,
+    from: process.env.SENDER_EMAIL,
     to: user.email,
-    subject: "Verify Your Account - OTP Verification",
+    subject: "🔐 Verify Your Account - OTP Verification",
     text: `Hi ${user.firstName},
   
-              Thank you for signing up with MERN Auth!
+  Thank you for signing up with MERN Auth!
   
-              To complete your account setup, please verify your email address by entering the One-Time Password (OTP) below:
+  To complete your account setup, please verify your email address by entering the One-Time Password (OTP) below:
   
-              Your OTP is: ${otp}
+  Your OTP is: ${otp}
   
-              This OTP will expire in 15 minutes. If you did not request this, please ignore this email.
+  This OTP will expire in 15 minutes. If you did not request this, please ignore this email.
   
-              If you face any issues, feel free to reach out to our support team.
+  If you face any issues, feel free to reach out to our support team.
   
-                  Welcome aboard,
-              The MERN Auth Team`,
+  Welcome aboard,
+  The MERN Auth Team`,
+
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;">
+        <h2>Hi ${user.firstName},</h2>
+        <p>Thank you for signing up with <strong>MERN Auth</strong>!</p>
+        <p>To complete your account setup, please verify your email address by entering the One-Time Password (OTP) below:</p>
+        <p style="font-size: 20px; font-weight: bold; color: #2c3e50;">Your OTP is: ${otp}</p>
+        <p>This OTP will expire in <strong>15 minutes</strong>. If you did not request this, please ignore this email.</p>
+        <p>If you face any issues, feel free to reach out to our support team.</p>
+        <br />
+        <p>Welcome aboard,<br />The MERN Auth Team</p>
+      </div>
+    `,
   };
+
   console.log(mailOptions);
-  
 
   try {
     const info = await transporter.sendMail(mailOptions);
+    console.log("Message sent:", info);
     console.log("Message sent: %s", info.messageId);
     console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-
   } catch (error) {
     console.log("Error sending email:", error);
     return res.status(500).json({

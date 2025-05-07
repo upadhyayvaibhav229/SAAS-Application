@@ -6,7 +6,8 @@ import { asyncHandler } from "../utils/asynchandler.js";
 export const verifyJwt = asyncHandler(async (req, res, next) => {
   try {
     const token =
-      req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
+      req.cookies?.accessToken ||
+      req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
       req.user = null; // Allow token-less requests (e.g. logout)
@@ -21,7 +22,9 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
       throw new ApiError(401, "Invalid Access Token");
     }
 
-    const user = await User.findById(decodedToken._id).select("-password -refreshToken");
+    const user = await User.findById(decodedToken._id).select(
+      "-password -refreshToken"
+    );
 
     if (!user) {
       throw new ApiError(401, "User not found for provided token");
@@ -42,7 +45,6 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
     next(); // Let downstream handle unauthorized access
   }
 });
-
 
 //  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODE5ZWQzZjYwZjJlOThhOTllMjgwMjEiLCJlbWFpbCI6InVwYWRoeWF5dmFpYmhhdjIyOUBnbWFpbC5jb20iLCJmdWxsTmFtZSI6InZhaWJoYXYgdXBhZGQiLCJpYXQiOjE3NDY2MTgyMDksImV4cCI6MTc0NjcwNDYwOX0.yqy__qSNwfGVUmjLGvGp8v0MZrvvld6FzcelaOuPpbo
 
