@@ -8,6 +8,7 @@ const LoginForm = () => {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const api = "http://localhost:5000/api/users/login"; // Your backend registration API endpoint
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,15 +17,14 @@ const LoginForm = () => {
     try {
       // Sending POST request to the backend API for login
       const response = await axios.post(
-        "/api/users/login", 
-        { email, password }, 
-        { withCredentials: true } // This will ensure that cookies (access & refresh tokens) are sent and received.
+        api,
+        { email, password },
+        { withCredentials: true }
       );
 
       console.log("Login successful", response.data);
 
-      // Navigate to a protected route (e.g. dashboard) after successful login
-      navigate("/"); // Or any page you want to redirect the user to
+      navigate("/");
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
     }
@@ -64,11 +64,7 @@ const LoginForm = () => {
           </div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="remember-me"
-                className="mr-2"
-              />
+              <input type="checkbox" id="remember-me" className="mr-2" />
               <label htmlFor="remember-me">Remember me</label>
             </div>
             <Link to="/forgot-password" className="text-blue-500">

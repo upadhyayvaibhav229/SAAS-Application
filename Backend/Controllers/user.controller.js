@@ -5,6 +5,7 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import transporter from "../config/nodemailer.js";
 import nodemailer from "nodemailer";
+
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -337,6 +338,107 @@ const verifyEmail = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Email verified successfully"));
 });
 
+const isAuthenticated = asyncHandler(async (req, res) => {
+  try {
+    return res.status(200).json(new ApiResponse(200, {}, "Authenticated"));
+  } catch (error) {
+    return res
+      .status(500)
+      .json(new ApiResponse(500, {}, "Unable to authenticate"));
+  }
+});
+
+// generate otp for reset password
+const sendResetPasswordOtp = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({
+      message: "Email is required",
+    });
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(400).json({
+      message: "User not found",
+    });
+  }
+
+  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  user.resetOtp = otp;
+  user.resetOtpExpiredAt = Date.now() + 15 * 60 * 1000; // OTP expires in 15 minutes
+
+  await user.save();
+
+  const mailOptions = {
+    from: process.env.SMTP_USER,
+    to: email,
+    subject: "🔐 Reset Your Password - OTP Verification",
+    text: `Hi ${user.firstName},
+
+    To reset your password, please enter the One-Time Password (OTP) below:
+
+    Your OTP is: ${otp}
+
+    This OTP will expire in 15 minutes. If you did not request this, please ignore this email.
+
+    If you face any issues, feel free to reach out to our support team.
+
+    Welcome aboard,
+    The MERN Auth Team`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "OTP sent successfully"));
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error sending OTP email. Please try again later.",
+    });
+  }
+});
+
+// reset password
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword) {
+    return res.status(400).json({
+      message: "All fields are required",
+    });
+  }
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(400).json({
+      message: "User not found",
+    });
+  }
+
+  if (
+    user.resetOtp !== otp ||
+    user.resetOtp === "" ||
+    user.resetOtpExpiredAt < Date.now()
+  ) {
+    return res.status(400).json({
+      message: "Invalid OTP or OTP has expired",
+    });
+  }
+
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  user.password = hashedPassword;
+  user.resetOtp = "";
+  user.resetOtpExpiredAt = 0;
+
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password reset successfully"));
+});
+
 export {
   registerUser,
   loginUser,
@@ -344,4 +446,6 @@ export {
   logoutUser,
   verifyEmail,
   SendverifyOtp,
+  isAuthenticated,
+  sendResetPasswordOtp,
 };

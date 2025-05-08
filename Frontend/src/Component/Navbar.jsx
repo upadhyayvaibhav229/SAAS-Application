@@ -25,21 +25,26 @@ function classNames(...classes) {
 
 export default function Navbar() {
   // const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [user, setUser] = useState(null)
-  const handleSignOut = () => {
-    localStorage.removeItem("user");
-    setUser(null);
-    navigate("/login"); // or navigate("/") if you prefer
+  const [user, setUser] = useState(null);
+  const apilogout = "localhost:5000/api/users/logout";
+  const fetchUser = () => {
+    fetch("http://localhost:5000/api/users/me", {
+      credentials: "include",
+    }).then((res) => {
+      res.json().then((user) => {
+        setUser(user);
+      });
+    });
   };
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    console.log("user from localstorage", user);
-    if (user) {
-      setUser(user)
-    }
-  }, [])
+  const handleLogout = () => {
+    fetch(apilogout, {
+      method: "POST",
+      credentials: "include",
+    }).then(() => {
+      setUser(null);
+      navigate("/login");
+    });
+  };
   const navigate = useNavigate();
 
   return (
@@ -120,18 +125,22 @@ export default function Navbar() {
                     <a href="#">Settings</a>
                   </MenuItem>
                   <MenuItem>
-                    <a href="#" onClick={handleSignOut}>Sign out</a>
+                    <a href="#" onClick={handleLogout}>
+                      Sign out
+                    </a>
                   </MenuItem>
                 </MenuItems>
               </Menu>
             ) : (
               <div className="ml-3">
-                <button className="text-md py-1 px-4 rounded cursor-pointer bg-blue-700 text-white hover:bg-blue-800" onClick={() => navigate("/login")}>
+                <button
+                  className="text-md py-1 px-4 rounded cursor-pointer bg-blue-700 text-white hover:bg-blue-800"
+                  onClick={() => navigate("/login")}
+                >
                   Login
                 </button>
               </div>
             )}
-
           </div>
         </div>
       </div>

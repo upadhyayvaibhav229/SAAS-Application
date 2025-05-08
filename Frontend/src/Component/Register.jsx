@@ -21,13 +21,9 @@ export default function SignupForm() {
     try {
       // Sending POST request to backend registration API
       const res = await axios.post(api, form);
-
-      // Handle successful registration
       console.log("Response:", res.data);
-
       if (res.data?.success) {
-        // User is successfully registered, now the backend will send cookies with tokens
-        navigate("/login");  // Redirect to the login page after successful registration
+        navigate("/login"); 
       }
     } catch (error) {
       console.log("Registration failed", error);
