@@ -6,59 +6,59 @@ import { toast } from "react-toastify";
 
 const AuthForm = () => {
   const [mode, setMode] = useState("login"); // 'login', 'register', or 'forgot'
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
-  const { backendUrl, setIsLoggedIn } = useContext(AppContext);
+  const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      if (mode === "login") {
-        const { data } = await axios.post(`${backendUrl}/api/auth/login`, {
+      axios.defaults.withCredentials = true;
+      if (mode === "register") {
+        
+        const {data} = await axios.post(`${backendUrl}/api/users/register`, {
+          firstName,
+          lastName,
           email,
           password,
         });
+        console.log("data", data);  
+        
         if (data.success) {
-          setIsLoggedIn(true);
-          navigate("/");
+          toast.success("Registration successful");
+          // setIsLoggedIn(true);
+          getUserData();
+          navigate("/login");     
         } else {
           toast.error(data.message);
-          setError(data.message);
         }
-      }else if (mode === "register") {
-        const { data } = await axios.post(`${backendUrl}/api/auth/register`, {
-          name,
+      }else{
+        const {data} = await axios.post(`${backendUrl}/api/users/login`, {
           email,
           password,
         });
+        console.log("data", data);  
+        
         if (data.success) {
+          toast.success("Login successful");
           setIsLoggedIn(true);
-          navigate("/");
+          getUserData();
+          navigate("/");     
         } else {
           toast.error(data.message);
-          setError(data.message);
-        }
-      } else if (mode === "forgot") {
-        const { data } = await axios.post(`${backendUrl}/api/auth/forgot`, {
-          email,
-        });
-        if (data.success) {
-          toast.success(data.message);
-          setMode("login");
-        } else {
-          toast.error(data.message);
-          setError(data.message);
         }
       }
     } catch (error) {
-      console.error("Error during form submission:", error);
-      setError("An error occurred. Please try again.");
+      console.error(error);
+      setError("An error occurred. Please try again."); 
+      
     }
-  };
+  }
 
   const renderTitle = () => {
     switch (mode) {
@@ -119,19 +119,31 @@ const AuthForm = () => {
 
         {error && <div className="mb-4 text-red-500">{error}</div>}
 
-        <form>
+        <form onSubmit={handleSubmit}>
           {mode === "register" && (
             <div className="mb-4">
-              <label htmlFor="name" className="block mb-1 font-medium">
-                Name
+              <label htmlFor="firstName" className="block mb-1 font-medium">
+                First Name
               </label>
               <input
                 type="text"
-                id="name"
+                id="firstName"
                 className="w-full p-2 border border-gray-300 rounded-lg"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 required
+              />
+              <label htmlFor="lastName" className="block mb-1 font-medium">
+                First Name
+              </label>
+              <input
+                type="text"
+                id="lastName"
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                
               />
             </div>
           )}

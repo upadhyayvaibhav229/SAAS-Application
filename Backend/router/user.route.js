@@ -19,14 +19,13 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 // router.get('/me', verifyJwt, getCurrentUser);
 router.post("/logout", logoutUser, verifyJwt);
-router.post('/refresh-token', refershAccessToken);
-router.post("/send-otp",  verifyJwt, SendverifyOtp);
-router.post("/verify-account", verifyJwt,verifyEmail);
-router.post("/isauth", verifyJwt,isAuthenticated);
-router.post('/send-reset-otp',  sendResetPasswordOtp);
-router.post('/reset-password',  resetPassword);
+router.post("/refresh-token", refershAccessToken);
+router.post("/send-otp", verifyJwt, SendverifyOtp);
+router.post("/verify-account", verifyJwt, verifyEmail);
+router.post("/isauth", verifyJwt, isAuthenticated);
+router.post("/send-reset-otp", sendResetPasswordOtp);
+router.post("/reset-password", resetPassword);
 
-router.get("/data",verifyJwt,getUserData)
-
+router.get("/data", verifyJwt, getUserData);
 
 export default router;
