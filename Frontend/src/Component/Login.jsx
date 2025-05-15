@@ -14,53 +14,59 @@ const AuthForm = () => {
 
   const navigate = useNavigate();
 
-  const { backendUrl, setIsLoggedIn, getUserData } = useContext(AppContext);
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  axios.defaults.withCredentials = true;
+  const { backendUrl, setIsLoggedIn, getUserData, setAccessToken } = useContext(AppContext);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    axios.defaults.withCredentials = true;
 
-  try {
-    if (mode === "register") {
-      const { data } = await axios.post(`${backendUrl}/api/users/register`, {
-        firstName,
-        lastName,
-        email,
-        password,
-      });
+    try {
+      if (mode === "register") {
+        const { data } = await axios.post(`${backendUrl}/api/users/register`, {
+          firstName,
+          lastName,
+          email,
+          password,
+        });
 
-      console.log("Registration response:", data);
+        console.log("Registration response:", data);
 
-      if (data.success) {
-        toast.success("Registration successful");
-        navigate("/login");
+        if (data.success) {
+          toast.success("Registration successful");
+          navigate("/login");
+        } else {
+          toast.error(data.message);
+        }
       } else {
-        toast.error(data.message);
-      }
-    } else {
-      // 🔐 Login user
-      const { data } = await axios.post(`${backendUrl}/api/users/login`, {
-        email,
-        password,
-      });
+        // 🔐 Login user
+        const { data } = await axios.post(`${backendUrl}/api/users/login`, {
+          email,
+          password,
+        });
 
-      console.log("Login response:", data);
+        console.log("Login response:", data);
 
-      if (data.success) {
-        toast.success("Login successful");
-        localStorage.setItem("accessToken", JSON.stringify(data.data.accessToken));
-        setIsLoggedIn(true);
-        await getUserData();
-        navigate("/");
-      } else {
-        toast.error(data.message);
+        if (data.success) {
+          toast.success("Login successful");
+
+          // ✅ Use context method to store token
+          setAccessToken(data.data.accessToken);
+
+          setIsLoggedIn(true);
+
+          // ✅ Load user data using updated token
+          await getUserData();
+
+          navigate("/");
+        } else {
+          toast.error(data.message);
+        }
       }
+    } catch (error) {
+      console.error("Auth error:", error);
+      setError("An error occurred. Please try again.");
+      toast.error("An error occurred. Please try again.");
     }
-  } catch (error) {
-    console.error("Auth error:", error);
-    setError("An error occurred. Please try again.");
-    toast.error("An error occurred. Please try again.");
-  }
-};
+  };
 
   const renderTitle = () => {
     switch (mode) {
@@ -145,7 +151,6 @@ const AuthForm = () => {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
-                
               />
             </div>
           )}

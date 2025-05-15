@@ -10,8 +10,9 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { assets } from "../assets/assets";
 import { useContext } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AppContext } from "../Context/AppContext";
+import axios from "axios";
 
 const navigation = [
   { name: "Dashboard", to: "/" },
@@ -25,15 +26,51 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
-  const { userData, setIsLoggedIn, setAccessToken } = useContext(AppContext);
+  const { userData, setIsLoggedIn, setAccessToken, backendUrl, setUserData } =
+    useContext(AppContext);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setAccessToken(null);
-    localStorage.clear();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      axios.defaults.withCredentials = true;
+
+      const { data } = await axios.post(`${backendUrl}/api/users/logout`);
+
+      if (data.success) {
+        setIsLoggedIn(false);
+        setUserData(null);
+        setAccessToken(null); // this will also remove from localStorage
+        navigate("/login");
+        toast.success("Logged out successfully");
+      } else {
+        console.error("Logout failed:", data.message);
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
+
+  const sendVerificationOTP = async () => {
+    try {
+      axios.defaults.withCredentials = true;
+      const { data } = await axios.post(
+        `${backendUrl}/api/users/send-otp`,
+        {
+          email: userData?.email,
+        }
+      );
+
+      if (data.success) {
+        navigate("/verify-email");
+        toast.success("Verification OTP sent successfully");
+
+      }
+    } catch (error) {
+      toast.error("Failed to send verification OTP", error.message);
+      console.error("Error sending verification OTP:", error);
+      
+    }
+  }
 
   return (
     <Disclosure as="nav" className="bg-gray-900">
@@ -56,22 +93,26 @@ export default function Navbar() {
             {/* Desktop navigation */}
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
-                {navigation.map((item) => (
-                  <NavLink
-                    key={item.name}
-                    to={item.to}
-                    className={({ isActive }) =>
-                      classNames(
-                        isActive
-                          ? "bg-gray-800 text-white"
-                          : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                        "rounded-md px-3 py-2 text-sm font-medium"
-                      )
-                    }
-                  >
-                    {item.name}
-                  </NavLink>
-                ))}
+                {userData?.isAccountVerified ? (
+                  navigation.map((item) => (
+                    <NavLink
+                      key={item.name}
+                      to={item.to}
+                      className={({ isActive }) =>
+                        classNames(
+                          isActive
+                            ? "bg-gray-800 text-white"
+                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                          "rounded-md px-3 py-2 text-sm font-medium"
+                        )
+                      }
+                    >
+                      {item.name}
+                    </NavLink>
+                  ))
+                ) : (
+                  <div className="text-red-600">Login to access dashboard</div>
+                )}
               </div>
             </div>
           </div>
@@ -113,9 +154,9 @@ export default function Navbar() {
                   </MenuItem>
                   {!userData?.isAccountVerified && (
                     <MenuItem>
-                      <div className="block px-4 py-2 text-sm text-red-600">
-                        Email not verified
-                      </div>
+                      <Link to="/verify-email" className="block px-4 py-2 text-sm text-red-600 cursor-pointer">
+                        Verify Email
+                      </Link>
                     </MenuItem>
                   )}
                   <MenuItem>
@@ -123,7 +164,7 @@ export default function Navbar() {
                       <button
                         onClick={handleLogout}
                         className={classNames(
-                          active ? "bg-gray-100" : "",
+                          active ? "bg-gray-100 cursor-pointer" : "",
                           "w-full text-left px-4 py-2 text-sm text-gray-700"
                         )}
                       >
