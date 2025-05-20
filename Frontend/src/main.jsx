@@ -13,6 +13,7 @@ import LoginForm from "./Component/Login.jsx";
 import Home from "./Component/Home.jsx";
 import { AppContextProvider } from "./Context/AppContext.jsx";
 import EmailVerified from "./Component/EmailVerified.jsx";
+import ResetPwd from "./Component/ResetPwd.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -21,6 +22,7 @@ const router = createBrowserRouter(
       <Route path="register" element={<SignupForm />} />
       <Route path="login" element={<LoginForm />} />
       <Route path="verify-email" element={<EmailVerified />} />
+      <Route path="reset-password" element={<ResetPwd />} />
     </Route>
   )
 );

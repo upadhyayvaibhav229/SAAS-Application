@@ -26,54 +26,58 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const getAuthState = async () => {
-    try {
-      const { data } = await axios.get(`${backendUrl}/api/auth/isauth`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+ const getAuthState = async (showToast = true) => {
+  try {
+    const { data } = await axios.get(`${backendUrl}/api/users/isauth`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
 
-      if (data.success) {
-        setIsLoggedIn(true);
-        setUserData(data.user);
-        toast.success("User is authenticated");
-      }
-    } catch (error) {
-      console.error("Error checking authentication state:", error);
-      toast.error("Failed to check authentication state");
+    if (data.success) {
+      setIsLoggedIn(true);
+      setUserData(data.user);
+      if (showToast) toast.success("User is authenticated");
     }
-  };
+  } catch (error) {
+    console.error("Error checking authentication state:", error);
+    if (showToast) toast.error("Failed to check authentication state");
+  }
+};
 
-  const getUserData = async () => {
-    try {
-      if (!accessToken) {
-        console.warn("No access token available");
-        return;
-      }
-
-      const { data } = await axios.get(`${backendUrl}/api/users/data`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (data.success) {
-        setUserData(data.user);
-        toast.success("User data fetched successfully");
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error("Failed to fetch user data");
+const getUserData = async (showToast = true) => {
+  try {
+    if (!accessToken) {
+      console.warn("No access token available");
+      return;
     }
-  };
 
-  useEffect(() => {
-    if (accessToken) {
-      getAuthState();
+    const { data } = await axios.get(`${backendUrl}/api/users/data`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (data.success) {
+      setUserData(data.user);
+      if (showToast) toast.success("User data fetched successfully");
+    } else {
+      if (showToast) toast.error(data.message);
     }
-  }, [accessToken]);
+  } catch (error) {
+    if (showToast) toast.error("Failed to fetch user data");
+  }
+};
+
+
+
+ useEffect(() => {
+  if (accessToken) {
+    getAuthState(false);
+    getUserData(false);  // suppress toast on app start
+  }
+}, [accessToken]);
+
 
   const value = {
     backendUrl,
