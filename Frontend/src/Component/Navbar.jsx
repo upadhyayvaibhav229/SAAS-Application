@@ -13,6 +13,7 @@ import { useContext } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { AppContext } from "../Context/AppContext";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const navigation = [
   { name: "Dashboard", to: "/" },
@@ -53,24 +54,22 @@ export default function Navbar() {
   const sendVerificationOTP = async () => {
     try {
       axios.defaults.withCredentials = true;
-      const { data } = await axios.post(
-        `${backendUrl}/api/users/send-otp`,
-        {
-          email: userData?.email,
-        }
-      );
+      const { data } = await axios.post(`${backendUrl}/api/users/send-otp`, {
+          userId: userData?._id || userData?.id,
+        email: userData?.email,
+      });
+
+      console.log("Verification OTP response:", data);
 
       if (data.success) {
         navigate("/verify-email");
         toast.success("Verification OTP sent successfully");
-
       }
     } catch (error) {
       toast.error("Failed to send verification OTP", error.message);
       console.error("Error sending verification OTP:", error);
-      
     }
-  }
+  };
 
   return (
     <Disclosure as="nav" className="bg-gray-900">
@@ -93,7 +92,7 @@ export default function Navbar() {
             {/* Desktop navigation */}
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
-                {userData?.isAccountVerified ? (
+                {userData? (
                   navigation.map((item) => (
                     <NavLink
                       key={item.name}
@@ -154,7 +153,11 @@ export default function Navbar() {
                   </MenuItem>
                   {!userData?.isAccountVerified && (
                     <MenuItem>
-                      <Link to="/verify-email" className="block px-4 py-2 text-sm text-red-600 cursor-pointer">
+                      <Link
+                        onClick={sendVerificationOTP}
+                        to="/verify-email"
+                        className="block px-4 py-2 text-sm text-red-600 cursor-pointer"
+                      >
                         Verify Email
                       </Link>
                     </MenuItem>
@@ -178,7 +181,7 @@ export default function Navbar() {
               <div className="ml-3">
                 <button
                   onClick={() => navigate("/login")}
-                  className="rounded bg-blue-700 px-4 py-1 text-white hover:bg-blue-800"
+                  className="rounded bg-blue-700 px-4 py-1 text-white hover:bg-blue-800 cursor-pointer"
                 >
                   Login
                 </button>

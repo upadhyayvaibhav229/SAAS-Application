@@ -62,10 +62,9 @@ export const AppContextProvider = ({ children }) => {
         setUserData(data.user);
         toast.success("User data fetched successfully");
       } else {
-        toast.error(data.message || "Failed to fetch user data");
+        toast.error(data.message);
       }
     } catch (error) {
-      console.error("Error fetching user data:", error);
       toast.error("Failed to fetch user data");
     }
   };

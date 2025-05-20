@@ -1,7 +1,14 @@
-import React, { useRef } from 'react'
+import React, { useContext, useRef } from 'react'
+import { AppContext } from '../Context/AppContext';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const EmailVerified = () => {
     const inputRef = useRef([]);
+    const {backendUrl, isLoggedIn, userData, getUserData} = useContext(AppContext);
+    const navigate = useNavigate();
+    axios.defaults.withCredentials = true;
     const handleInput = (e, index) => {
         const value = e.target.value;
         if (value.length === 1 && index < 5) {
@@ -11,21 +18,40 @@ const EmailVerified = () => {
         }
     }
 
-    const handleKeyDown = () => {
+    const handleKeyDown = (e) => {
       if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
         inputRef.current[index - 1].focus();
       }
     }
 
-    const handlePaste = () => {
+    const handlePaste = (e) => {
       const values = e.clipboardData.getData('Text').split('');
       values.forEach((value, index) => {
         inputRef.current[index].value = value;
       });
     }
+
+    const onSubmitHandler = async (e) =>{
+      try {
+        e.preventDefault();
+        const otpArray = inputRef.current.map((e) => e.value);
+        const otp = otpArray.join('');
+        const {data} = await axios.post(`${backendUrl}/api/users/verify-account`, {otp, userId: userData?._id || userData?.id});
+        if(data.success){
+         toast.success(data.message);
+         getUserData();
+
+          navigate("/");
+        }else{
+          toast.error(data.message);
+        }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    }
   return (
     <div className='flex flex-col items-center justify-center h-screen bg-gradient-to-r from-blue-500 to-purple-500 text-white '>
-      <form action="" className="">
+      <form onSubmit={onSubmitHandler} className="">
         <div className="bg-[#333A5C] text-white p-6 rounded-lg shadow-lg">
           <h1 className="text-2xl font-bold mb-4">Email Verified</h1>
           <p className="mb-4">Enter the 6 digit code sent to your email</p>
@@ -40,7 +66,6 @@ const EmailVerified = () => {
                             ref={(el) => (inputRef.current[index] = el)}
                             onChange={(e) => handleInput(e, index)}
                             onKeyDown={(e) => handleKeyDown(e, index)}
-
                             onFocus={(e) => e.target.select()} 
                         />
                     ))

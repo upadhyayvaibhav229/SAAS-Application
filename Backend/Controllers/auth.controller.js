@@ -274,7 +274,7 @@ const SendverifyOtp = asyncHandler(async (req, res, next) => {
     `,
   };
 
-  console.log(mailOptions);
+  // console.log(mailOptions);
 
   try {
     const info = await transporter.sendMail(mailOptions);

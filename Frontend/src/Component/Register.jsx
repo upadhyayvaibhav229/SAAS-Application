@@ -23,7 +23,7 @@ export default function SignupForm() {
       const res = await axios.post(api, form);
       console.log("Response:", res.data);
       if (res.data?.success) {
-        navigate("/login"); 
+        navigate('/'); 
       }
     } catch (error) {
       console.log("Registration failed", error);
