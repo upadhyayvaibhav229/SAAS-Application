@@ -32,4 +32,17 @@
 // let person = {name: 'Lydia'};
 // const members = [person];
 // person = null;
-console.log(parseInt('5 * 4', 10));
+// console.log(parseInt('5 * 4', 10));
+// let str = "vaibhav";
+// let reversed = "";
+
+// for (let i = str.length - 1; i >= 0; i--) {
+//     reversed += str[i];
+// }
+
+// console.log(reversed);
+let n = 10
+for (let i = 0; i < ; i++) {
+    const element = array[i];
+    
+}

@@ -5,7 +5,6 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import transporter from "../config/nodemailer.js";
 import nodemailer from "nodemailer";
-import bcrypt from "bcrypt";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
@@ -427,9 +426,9 @@ const resetPassword = asyncHandler(async (req, res) => {
     });
   }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  // const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-  user.password = hashedPassword;
+  user.password = newPassword;
   user.resetOtp = "";
   user.resetOtpExpiredAt = 0;
 

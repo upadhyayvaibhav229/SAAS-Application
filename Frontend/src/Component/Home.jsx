@@ -4,7 +4,6 @@ import { AppContext } from '../Context/AppContext';
 
 const Home = () => {
   const { userData, getUserData, isLoggedIn } = useContext(AppContext);
-console.log("User Data:", userData);
   useEffect(() => {
     if (isLoggedIn && !userData) {
       getUserData();

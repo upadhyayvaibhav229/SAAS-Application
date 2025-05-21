@@ -14,17 +14,28 @@ import Home from "./Component/Home.jsx";
 import { AppContextProvider } from "./Context/AppContext.jsx";
 import EmailVerified from "./Component/EmailVerified.jsx";
 import ResetPwd from "./Component/ResetPwd.jsx";
+import PrivateRoute from "./Component/PrivateRoute.jsx";
 
 const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route path="/" element={<App />}>
-      <Route index element={<Home />} />
-      <Route path="register" element={<SignupForm />} />
-      <Route path="login" element={<LoginForm />} />
-      <Route path="verify-email" element={<EmailVerified />} />
-      <Route path="reset-password" element={<ResetPwd />} />
-    </Route>
-  )
+createRoutesFromElements(
+  <Route path="/" element={<App />}>
+    <Route
+      index
+      element={
+        <PrivateRoute>
+          <Home />
+        </PrivateRoute>
+      }
+    />
+    
+    {/* Public routes */}
+    <Route path="register" element={<SignupForm />} />
+    <Route path="login" element={<LoginForm />} />
+    <Route path="verify-email" element={<EmailVerified />} />
+    <Route path="reset-password" element={<ResetPwd />} />
+  </Route>
+)
+
 );
 
 createRoot(document.getElementById("root")).render(

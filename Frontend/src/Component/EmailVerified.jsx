@@ -26,8 +26,10 @@ const EmailVerified = () => {
   };
 
   const handlePaste = (e) => {
-    const values = e.clipboardData.getData("Text").split("");
-    values.forEach((value, index) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("Text").trim();
+    if (pastedData.length > inputRef.current.length) return;
+    pastedData.split("").forEach((value, index) => {
       inputRef.current[index].value = value;
     });
   };
