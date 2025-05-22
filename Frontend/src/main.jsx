@@ -28,6 +28,8 @@ createRoutesFromElements(
       }
     />
     
+    {/* admin Route */}
+    
     {/* Public routes */}
     <Route path="register" element={<SignupForm />} />
     <Route path="login" element={<LoginForm />} />

@@ -19,7 +19,7 @@ const navigation = [
   { name: "Dashboard", to: "/" },
   { name: "Team", to: "/team" },
   { name: "Projects", to: "/projects" },
-  { name: "Calendar", to: "/calendar" },
+  { name: "Admin", to: "/calendar" },
 ];
 
 function classNames(...classes) {

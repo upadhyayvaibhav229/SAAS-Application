@@ -21,8 +21,9 @@ const LoginForm = () => {
         email,
         password,
       });
-
-      console.log("Login response:", data);
+      
+      
+      // console.log("Login response:", data);
 
       if (data.success) {
         toast.success("Login successful");

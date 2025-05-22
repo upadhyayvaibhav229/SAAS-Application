@@ -5,6 +5,7 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import transporter from "../config/nodemailer.js";
 import nodemailer from "nodemailer";
+import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailTemplates.js";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
@@ -244,42 +245,17 @@ const SendverifyOtp = asyncHandler(async (req, res, next) => {
     from: process.env.SENDER_EMAIL,
     to: user.email,
     subject: "🔐 Verify Your Account - OTP Verification",
-    text: `Hi ${user.firstName},
-  
-  Thank you for signing up with MERN Auth!
-  
-  To complete your account setup, please verify your email address by entering the One-Time Password (OTP) below:
-  
-  Your OTP is: ${otp}
-  
-  This OTP will expire in 15 minutes. If you did not request this, please ignore this email.
-  
-  If you face any issues, feel free to reach out to our support team.
-  
-  Welcome aboard,
-  The MERN Auth Team`,
+    html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email), 
 
-    html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; line-height: 1.6;">
-        <h2>Hi ${user.firstName},</h2>
-        <p>Thank you for signing up with <strong>MERN Auth</strong>!</p>
-        <p>To complete your account setup, please verify your email address by entering the One-Time Password (OTP) below:</p>
-        <p style="font-size: 20px; font-weight: bold; color: #2c3e50;">Your OTP is: ${otp}</p>
-        <p>This OTP will expire in <strong>15 minutes</strong>. If you did not request this, please ignore this email.</p>
-        <p>If you face any issues, feel free to reach out to our support team.</p>
-        <br />
-        <p>Welcome aboard,<br />The MERN Auth Team</p>
-      </div>
-    `,
   };
 
   // console.log(mailOptions);
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log("Message sent:", info);
-    console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
+    // console.log("Message sent:", info);
+    // console.log("Message sent: %s", info.messageId);
+    // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   } catch (error) {
     console.log("Error sending email:", error);
     return res.status(500).json({
@@ -374,18 +350,7 @@ const sendResetPasswordOtp = asyncHandler(async (req, res) => {
     from: process.env.SENDER_EMAIL,
     to: email,
     subject: "🔐 Reset Your Password - OTP Verification",
-    text: `Hi ${user.firstName},
-
-    To reset your password, please enter the One-Time Password (OTP) below:
-
-    Your OTP is: ${otp}
-
-    This OTP will expire in 15 minutes. If you did not request this, please ignore this email.
-
-    If you face any issues, feel free to reach out to our support team.
-
-    Welcome aboard,
-    The MERN Auth Team`,
+    html: PASSWORD_RESET_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email),
   };
 
   try {

@@ -41,8 +41,10 @@
 // }
 
 // console.log(reversed);
-let n = 10
-for (let i = 0; i < ; i++) {
+// even number up to n
+
+n = 10;
+for (let i = 0; i <= n; i++) {
     const element = array[i];
     
 }

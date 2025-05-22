@@ -21,10 +21,12 @@ export default function SignupForm() {
     try {
       // Sending POST request to backend registration API
       const res = await axios.post(api, form);
-      console.log("Response:", res.data);
+      // console.log("Response:", res.data);
       if (res.data?.success) {
-        navigate('/'); 
+        navigate('/login'); 
       }
+
+      
     } catch (error) {
       console.log("Registration failed", error);
       setError(error.response?.data?.message || "An error occurred");
