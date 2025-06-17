@@ -1,6 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { assets } from '../assets/assets';
 import { AppContext } from '../Context/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const { userData, getUserData, isLoggedIn } = useContext(AppContext);
@@ -9,6 +10,7 @@ const Home = () => {
       getUserData();
     }
   }, [isLoggedIn, userData, getUserData]);
+  const navigate = useNavigate();
 
   return (
     <div className='text-white h-screen w-full flex flex-col items-center justify-center gap-2 bg-slate-900'>
@@ -28,9 +30,10 @@ const Home = () => {
       </p>
 
       <button
+      onClick={navigate('/products')}
         type="button"
         className='text-xl py-2 px-3 rounded cursor-pointer bg-blue-700 hover:bg-blue-800'>
-        Get Started
+        Start Shopping
       </button>
     </div>
   );
