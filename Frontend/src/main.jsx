@@ -15,9 +15,6 @@ import { AppContextProvider } from "./Context/AppContext.jsx";
 import EmailVerified from "./Component/EmailVerified.jsx";
 import ResetPwd from "./Component/ResetPwd.jsx";
 import PrivateRoute from "./Component/PrivateRoute.jsx";
-import { Provider } from "react-redux";
-import Products from "./pages/Products.jsx";
-import { store } from "./app/app.js";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -38,7 +35,7 @@ const router = createBrowserRouter(
       <Route path="login" element={<LoginForm />} />
       <Route path="verify-email" element={<EmailVerified />} />
       <Route path="reset-password" element={<ResetPwd />} />
-      <Route path="/products" element= {<Products/>}/>
+      {/* <Route path="/products" element= {<Products/>}/> */}
     </Route>
   )
 
@@ -46,11 +43,9 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <Provider store={store}>
 
       <AppContextProvider>
         <RouterProvider router={router} />
       </AppContextProvider>
-    </Provider>
   </StrictMode>
 );

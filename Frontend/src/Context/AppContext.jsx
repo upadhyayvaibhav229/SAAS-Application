@@ -12,20 +12,19 @@ export const AppContextProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
 
   // ✅ Rehydrate accessToken from localStorage on first render
-  const [accessToken, setAccessTokenState] = useState(() => {
-    const storedToken = localStorage.getItem("accessToken");
-    return storedToken ? JSON.parse(storedToken) : null;
-  });
+const [accessToken, setAccessTokenState] = useState(() => {
+  return localStorage.getItem("accessToken") || null;
+});
 
   // ✅ Sync accessToken to localStorage when changed
   const setAccessToken = (token) => {
-    setAccessTokenState(token);
-    if (token) {
-      localStorage.setItem("accessToken", JSON.stringify(token));
-    } else {
-      localStorage.removeItem("accessToken");
-    }
-  };
+  setAccessTokenState(token);
+  if (token) {
+    localStorage.setItem("accessToken", token);
+  } else {
+    localStorage.removeItem("accessToken");
+  }
+};
 
   const getAuthState = async (showToast = true) => {
     try {

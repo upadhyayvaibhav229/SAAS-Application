@@ -8,7 +8,7 @@ const getUserData = asyncHandler(async (req, res) => {
         return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({
+    res.status(200).json({ 
         success: true,
         user: {
             id: user._id,
