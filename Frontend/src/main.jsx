@@ -15,6 +15,7 @@ import { AppContextProvider } from "./Context/AppContext.jsx";
 import EmailVerified from "./Component/EmailVerified.jsx";
 import ResetPwd from "./Component/ResetPwd.jsx";
 import PrivateRoute from "./Component/PrivateRoute.jsx";
+import ProfilePage from "./Component/Profile.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -35,7 +36,7 @@ const router = createBrowserRouter(
       <Route path="login" element={<LoginForm />} />
       <Route path="verify-email" element={<EmailVerified />} />
       <Route path="reset-password" element={<ResetPwd />} />
-      {/* <Route path="/products" element= {<Products/>}/> */}
+      <Route path="/profile" element= {<ProfilePage/>}/>
     </Route>
   )
 

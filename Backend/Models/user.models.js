@@ -20,6 +20,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  phone: {
+    type: String,
+    default: "00000000000",
+  },
+  location: {
+    type: String,
+    default: "Unknown",
+  },
+  role: {
+    type: String,
+    default: "user",
+  },
   isAccountVerified: {
     type: Boolean,
     default: false,
@@ -36,7 +48,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-  resetOtpExpiredAt: { // ✅ Fixed typo
+  resetOtpExpiredAt: { 
     type: Number,
     default: 0,
   },

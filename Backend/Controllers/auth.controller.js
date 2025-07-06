@@ -215,9 +215,9 @@ const refershAccessToken = asyncHandler(async (req, res) => {
 
 const SendverifyOtp = asyncHandler(async (req, res, next) => {
   const { userId } = req.body;
-  console.log("received userId", userId);
+  // console.log("received userId", userId);
 
-  console.log(req.body, "this is req body");
+  // console.log(req.body, "this is req body");
 
   // Fetch the user by userId
   const user = await User.findById(userId);
