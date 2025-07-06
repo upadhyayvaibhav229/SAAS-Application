@@ -11,7 +11,7 @@ import {
   verifyEmail,
 } from "../Controllers/auth.controller.js";
 import { verifyJwt } from "../Middleware/auth.middleware.js";
-import { getUserData } from "../Controllers/user.controller.js";
+import { getProfileDetails, getUserData, updateUser } from "../Controllers/user.controller.js";
 
 const router = Router();
 
@@ -27,5 +27,7 @@ router.post("/send-reset-otp", sendResetPasswordOtp);
 router.post("/reset-password", resetPassword);
 
 router.get("/data", verifyJwt, getUserData);
+router.get('/profile-details', verifyJwt, getProfileDetails);
+router.post('/update-profile', verifyJwt, updateUser);
 
 export default router;

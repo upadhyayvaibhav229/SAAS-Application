@@ -1,24 +1,62 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { AppContext } from "../Context/AppContext";
 
 const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
+  const { backendUrl, userData, getUserData } = useContext(AppContext);
+
   const [profile, setProfile] = useState({
-    name: "Vaibhav Upadhyay",
-    email: "upadhyayvaibhav229@email.com",
-    phone: "9004523446",
-    location: "Mumbai, India",
-    role: "MERN Stack Developer",
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    role: "",
     avatar: "https://i.pravatar.cc/150?img=3",
   });
+
+  // Initialize profile from userData
+  useEffect(() => {
+    if (userData) {
+      setProfile({
+        name: `${userData.firstName} ${userData.lastName}`,
+        email: userData.email || "",
+        phone: userData.phone || "",
+        location: userData.location || "",
+        role: userData.role || "",
+        avatar: "https://i.pravatar.cc/150?img=3", // or userData.avatar
+      });
+    }
+  }, [userData]);
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    console.log("Updated profile:", profile);
-    // You can also send this to your backend here
+
+  const handleSave = async () => {
+    try {
+      const res = await fetch(`${backendUrl}/api/users/update-profile`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify(profile),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setIsEditing(false);
+        getUserData(); // Refresh user data in context
+        alert("Profile updated successfully");
+      } else {
+        alert(data.message || "Failed to update");
+      }
+    } catch (error) {
+      console.error("Update error:", error);
+      alert("Something went wrong");
+    }
   };
 
   return (

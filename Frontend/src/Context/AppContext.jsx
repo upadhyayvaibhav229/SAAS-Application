@@ -69,7 +69,22 @@ const [accessToken, setAccessTokenState] = useState(() => {
     }
   };
 
- 
+ const loadUserProfileData = async () => {
+  try {
+    const {data} = await axios.get(`${backendUrl}/api/user/profile-details`);
+
+    if (data.success) {
+      setUserData(data.user);
+      console.log(data.user);
+      
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    console.log('Error loading user profile data:', error);
+  }
+ }
+
 useEffect(() => {
   const checkAuth = async () => {
     if (accessToken) {
@@ -82,6 +97,14 @@ useEffect(() => {
   checkAuth();
 }, [accessToken]);
 
+useEffect(()=> {
+  if (accessToken) {
+    loadUserProfileData()
+  }else{
+    setUserData(null)
+  }
+}, [accessToken])
+
   const value = {
     backendUrl,
     isLoggedIn,
@@ -91,7 +114,8 @@ useEffect(() => {
     accessToken,
     setAccessToken,
     getUserData,
-    loading
+    loading,
+    loadUserProfileData,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
