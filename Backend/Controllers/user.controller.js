@@ -40,6 +40,9 @@ const getUserData = asyncHandler(async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       isAccountVerified: user.isAccountVerified,
+      phone: user.phone,
+      location: user.location,
+      role: user.role
     },
   });
 });
