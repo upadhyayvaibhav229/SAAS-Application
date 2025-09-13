@@ -28,7 +28,7 @@ const [accessToken, setAccessTokenState] = useState(() => {
 
   const getAuthState = async (showToast = true) => {
     try {
-      const { data } = await axios.get(`${backendUrl}/api/users/isauth`, {
+      const { data } = await axios.get(`${backendUrl}/api/v1/users/isauth`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -52,7 +52,7 @@ const [accessToken, setAccessTokenState] = useState(() => {
         return;
       }
 
-      const { data } = await axios.get(`${backendUrl}/api/users/data`, {
+      const { data } = await axios.get(`${backendUrl}/api/v1/users/data`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -71,7 +71,7 @@ const [accessToken, setAccessTokenState] = useState(() => {
 
  const loadUserProfileData = async () => {
   try {
-    const {data} = await axios.get(`${backendUrl}/api/user/profile-details`);
+    const {data} = await axios.get(`${backendUrl}/api/v1/user/profile-details`);
 
     if (data.success) {
       setUserData(data.user);

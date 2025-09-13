@@ -7,7 +7,7 @@ import {
   MenuItem,
   MenuItems,
 } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, BellIcon, CogIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { assets } from "../assets/assets";
 import { useContext } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
@@ -55,7 +55,7 @@ export default function Navbar() {
     try {
       axios.defaults.withCredentials = true;
       const { data } = await axios.post(`${backendUrl}/api/users/send-otp`, {
-          userId: userData?._id || userData?.id,
+        userId: userData?._id || userData?.id,
         email: userData?.email,
       });
 
@@ -92,7 +92,7 @@ export default function Navbar() {
             {/* Desktop navigation */}
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
-                {userData? (
+                {userData ? (
                   navigation.map((item) => (
                     <NavLink
                       key={item.name}
@@ -122,7 +122,7 @@ export default function Navbar() {
               type="button"
               className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
             >
-              <BellIcon className="h-6 w-6" />
+              <CogIcon  className="h-8 w-8 text-gray-500 cursor-pointer" />
             </button>
 
             {userData ? (

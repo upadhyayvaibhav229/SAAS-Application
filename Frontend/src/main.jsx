@@ -16,6 +16,7 @@ import EmailVerified from "./Component/EmailVerified.jsx";
 import ResetPwd from "./Component/ResetPwd.jsx";
 import PrivateRoute from "./Component/PrivateRoute.jsx";
 import ProfilePage from "./Component/Profile.jsx";
+import DashBoard from "../Pages/DashBoard.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,6 +31,8 @@ const router = createBrowserRouter(
       />
       
       {/* admin Route */}
+      <Route path="dashboard" element={<DashBoard/>}/>
+      
 
       {/* Public routes */}
       <Route path="register" element={<SignupForm />} />

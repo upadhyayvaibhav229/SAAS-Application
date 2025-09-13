@@ -12,6 +12,7 @@ import {
 } from "../Controllers/auth.controller.js";
 import { verifyJwt } from "../Middleware/auth.middleware.js";
 import { getProfileDetails, getUserData, updateUser } from "../Controllers/user.controller.js";
+import { authorizeRoles } from "../Middleware/rolebase.middleware.js";
 
 const router = Router();
 
@@ -19,6 +20,11 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 // router.get('/me', verifyJwt, getCurrentUser);
 router.post("/logout", logoutUser, verifyJwt);
+router.get("/admin/dashboard", verifyJwt, authorizeRoles(
+  'admin'
+), (req, res) => {
+  res.status(200).json({ message: "Welcome to the Admin Dashboard" });
+});
 router.post("/refresh-token", refershAccessToken);
 router.post("/send-otp", verifyJwt, SendverifyOtp);
 router.post("/verify-account", verifyJwt, verifyEmail);

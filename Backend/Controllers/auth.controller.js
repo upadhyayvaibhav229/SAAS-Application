@@ -6,6 +6,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import transporter from "../config/nodemailer.js";
 import nodemailer from "nodemailer";
 import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE } from "../config/emailTemplates.js";
+import { Tenant } from "../Models/tenant.models.js";
 
 const generateAccessTokenAndRefreshToken = async (userId) => {
   try {
@@ -27,18 +28,15 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
 };
 
 const registerUser = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
-  console.log("Register Request:", req.body);
+  const { firstName, lastName, email, password, companyName } = req.body;
 
-  // 1. Validate required fields
-  if (!(firstName && lastName && email && password)) {
+  if (!(firstName && lastName && email && password && companyName)) {
     return res.status(400).json({
       success: false,
       message: "All fields are required",
     });
   }
 
-  // 2. Check if user already exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     return res.status(409).json({
@@ -47,63 +45,83 @@ const registerUser = async (req, res) => {
     });
   }
 
-  // 3. Create new user
+  // Create Tenant
+  const tenant = await Tenant.create({ name: companyName });
+
+  // Create first User as admin
   const user = await User.create({
     firstName,
     lastName,
     email,
     password,
+    role: "admin",
+    tenantId: tenant._id,  // ✅ FIXED
   });
 
-  // 4. Fetch created user (without password)
-  const createdUser = await User.findById(user._id).select("-password");
-  if (!createdUser) {
-    throw new ApiError(500, "User could not be retrieved after creation");
-  }
+  // Generate tokens
+  const { accessToken, refreshToken } =
+    await generateAccessTokenAndRefreshToken(user._id);
 
-  // 5. Send welcome email
-  const mailOptions = {
-    from: process.env.SENDER_EMAIL,
-    to: email,
-    subject: "W+-elcome to our platform!",
-    text: `Welcome ${firstName} ${lastName},\n\nYou have successfully registered on our platform.`,
+  const options = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:", info.messageId);
-  } catch (emailError) {
-    console.error("Error sending welcome email:", emailError.message);
-    // Optional: don't fail registration if email fails
+    await transporter.sendMail({
+      from: process.env.SENDER_EMAIL,
+      to: email,
+      subject: "Welcome to our platform!",
+      text: `Welcome ${firstName} ${lastName}, you have successfully registered as admin of ${companyName}.`,
+    });
+  } catch (err) {
+    console.error("Email sending error:", err.message);
   }
 
-  // 6. Send success response
-  return res.status(201).json({
-    success: true,
-    message: "User registered successfully",
-    data: createdUser,
-  });
+  return res
+    .status(201) // ✅ better than 200
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(
+        201,
+        {
+          user: {
+            id: user._id,
+            email: user.email,
+            fullName: `${user.firstName} ${user.lastName}`,
+            role: user.role,
+            tenantId: user.tenantId,
+          },
+          accessToken,
+          refreshToken,
+        },
+        "Tenant and admin user created successfully"
+      )
+    );
 };
+
 
 const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return next(new ApiError(400, "All fields are requiredd"));
+    return next(new ApiError(400, "All fields are required"));
   }
 
   const user = await User.findOne({ email });
   if (!user) {
-    return next(new ApiError(400, "User does not exists"));
+    return next(new ApiError(400, "User does not exist"));
   }
 
   const isPasswordValid = await user.isPasswordCorrect(password);
-
   if (!isPasswordValid) {
     return next(new ApiError(401, "Invalid user credentials"));
   }
 
   const { accessToken, refreshToken } =
     await generateAccessTokenAndRefreshToken(user._id);
+
   const options = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -118,7 +136,13 @@ const loginUser = async (req, res, next) => {
       new ApiResponse(
         200,
         {
-          user: user.toObject({ getters: true }),
+          user: {
+            id: user._id,
+            email: user.email,
+            fullName: `${user.firstName} ${user.lastName}`,
+            role: user.role,
+            tenantId: user.tenantId,
+          },
           accessToken,
           refreshToken,
         },
@@ -245,7 +269,7 @@ const SendverifyOtp = asyncHandler(async (req, res, next) => {
     from: process.env.SENDER_EMAIL,
     to: user.email,
     subject: "🔐 Verify Your Account - OTP Verification",
-    html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email), 
+    html: EMAIL_VERIFY_TEMPLATE.replace("{{otp}}", otp).replace("{{email}}", user.email),
 
   };
 

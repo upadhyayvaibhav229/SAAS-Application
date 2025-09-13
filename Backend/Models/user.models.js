@@ -30,6 +30,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
+    enum: ["admin", "manager", "staff", "accountant", "user"],
     default: "user",
   },
   isAccountVerified: {
@@ -54,6 +55,11 @@ const userSchema = new mongoose.Schema({
   },
   refreshToken: {
     type: String
+  },
+
+  tenantId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tenant", // Reference to the Tenant model
   },
 });
 
@@ -83,7 +89,9 @@ userSchema.methods.generateAccessToken = function () {
     {
       _id: this._id,
       email: this.email,
-      fullName: `${this.firstName} ${this.lastName}`, // ✅ Dynamically build fullName
+      fullName: `${this.firstName} ${this.lastName}`, 
+      role: this.role,
+      tenantId: this.tenantId
     },
     process.env.ACCESS_TOKEN_SECRET,
     {

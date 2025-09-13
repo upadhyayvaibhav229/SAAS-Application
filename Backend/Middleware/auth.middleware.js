@@ -3,14 +3,13 @@ import { User } from "../Models/user.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 
-// ✅ Verifies JWT and attaches user info to req
 export const verifyJwt = asyncHandler(async (req, res, next) => {
   try {
     const token =
       req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
-      req.user = null; // Allow public access if route doesn't require auth
+      req.user = null; 
       return next();
     }
 

@@ -17,13 +17,12 @@ const LoginForm = () => {
     axios.defaults.withCredentials = true;
 
     try {
-      const { data } = await axios.post(`${backendUrl}/api/users/login`, {
+      const { data } = await axios.post(`${backendUrl}/api/v1/users/login`, {
         email,
         password,
       });
       
       
-      // console.log("Login response:", data);
 
       if (data.success) {
         toast.success("Login successful");
