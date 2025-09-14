@@ -1,5 +1,5 @@
 export const ROLE_PERMISSIONS = {
-  owner: {
+  admin: {
     customers: ['create', 'read', 'update', 'delete'],
     orders: ['create', 'read', 'update', 'delete'],
     invoices: ['create', 'read', 'update', 'delete'],

@@ -8,39 +8,43 @@ const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { backendUrl, setIsLoggedIn, fetchUserData } = useContext(AppContext);
 
-  const { backendUrl, setIsLoggedIn, getUserData, setAccessToken } = useContext(AppContext);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    axios.defaults.withCredentials = true;
-
+    setError("");
+    setLoading(true);
+    
     try {
-      const { data } = await axios.post(`${backendUrl}/api/v1/users/login`, {
-        email,
-        password,
-      });
-      
-      
+      const { data } = await axios.post(
+        `${backendUrl}/api/v1/auth/login`, 
+        { email, password },
+        { withCredentials: true } // Ensure cookies are sent/received
+      );
 
       if (data.success) {
         toast.success("Login successful");
-
-        setAccessToken(data.data.accessToken);
-
         setIsLoggedIn(true);
-
-        await getUserData();
-
+        
+        // Wait for user data to be fetched before navigating
+        await fetchUserData(false); // false means don't show toast
+        
         navigate("/");
       } else {
-        toast.error(data.message);
+        setError(data.message || "Login failed");
+        toast.error(data.message || "Login failed");
       }
     } catch (error) {
       console.error("Auth error:", error);
-      setError("An error occurred. Please try again.");
-      toast.error("An error occurred. Please try again.");
+      const errorMessage = error.response?.data?.message || 
+                          "An error occurred. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -49,7 +53,11 @@ const LoginForm = () => {
       <div className="w-full max-w-sm bg-white rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
-        {error && <div className="mb-4 text-red-500">{error}</div>}
+        {error && (
+          <div className="mb-4 p-2 bg-red-100 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -63,6 +71,7 @@ const LoginForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={loading}
             />
           </div>
 
@@ -77,23 +86,24 @@ const LoginForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={loading}
             />
-            <p>
-              <Link to="/reset-password" className="text-blue-500">
-                Forgot Password ?
+            <p className="mt-2">
+              <Link to="/reset-password" className="text-blue-500 text-sm">
+                Forgot Password?
               </Link>
             </p>
           </div>
 
-          
-
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded-lg"
+            className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
-          <p className="text-center">
+          
+          <p className="text-center mt-4">
             Don't have an account?{" "}
             <Link to="/register" className="text-blue-500">
               Register
@@ -106,4 +116,3 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
-

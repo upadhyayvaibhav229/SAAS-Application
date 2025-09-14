@@ -115,7 +115,7 @@ const loginUser = async (req, res, next) => {
     return next(new ApiError(400, "All fields are required"));
   }
 
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).populate("tenantId", "name slug");
   if (!user) {
     return next(new ApiError(400, "User does not exist"));
   }
@@ -147,7 +147,11 @@ const loginUser = async (req, res, next) => {
             email: user.email,
             fullName: `${user.firstName} ${user.lastName}`,
             role: user.role,
-            tenantId: user.tenantId,
+            tenant: {
+              id: user.tenantId._id,
+              name: user.tenantId.name,   // ✅ Company name
+              slug: user.tenantId.slug,   // ✅ Slug
+            },
           },
           accessToken,
           refreshToken,

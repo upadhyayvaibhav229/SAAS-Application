@@ -5,118 +5,114 @@ import { toast } from "react-toastify";
 export const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Rehydrate accessToken from localStorage on first render
-const [accessToken, setAccessTokenState] = useState(() => {
-  return localStorage.getItem("accessToken") || null;
-});
+  // axios config
+  axios.defaults.withCredentials = true;
 
-  // ✅ Sync accessToken to localStorage when changed
-  const setAccessToken = (token) => {
-  setAccessTokenState(token);
-  if (token) {
-    localStorage.setItem("accessToken", token);
-  } else {
-    localStorage.removeItem("accessToken");
-  }
-};
-
-  const getAuthState = async (showToast = true) => {
-    try {
-      const { data } = await axios.get(`${backendUrl}/api/v1/users/isauth`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (data.success) {
-        setIsLoggedIn(true);
-        setUserData(data.user);
-        if (showToast) toast.success("User is authenticated");
+  // Check auth on app load
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data } = await axios.get(`${backendUrl}/api/v1/users/isauth`);
+        if (data.success) {
+          setIsLoggedIn(true);
+          await fetchUserData(false); // don't show toast
+        }
+      } catch (err) {
+        setIsLoggedIn(false);
+        setUserData(null);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Error checking authentication state:", error);
-      if (showToast) toast.error("Failed to check authentication state");
-    }
-  };
+    };
+    checkAuth();
+  }, []);
 
-  const getUserData = async (showToast = true) => {
+  // Fetch user data
+  const fetchUserData = async (showToast = true) => {
     try {
-      if (!accessToken) {
-        console.warn("No access token available");
-        return;
-      }
-
-      const { data } = await axios.get(`${backendUrl}/api/v1/users/data`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
+      const { data } = await axios.get(`${backendUrl}/api/v1/users/data`);
       if (data.success) {
-        setUserData(data.user);
+        setUserData(data.data);
         if (showToast) toast.success("User data fetched successfully");
-      } else {
-        if (showToast) toast.error(data.message);
+        return data.data;
       }
-    } catch (error) {
+    } catch (err) {
+      console.error("Failed to fetch user data:", err);
       if (showToast) toast.error("Failed to fetch user data");
     }
   };
 
- const loadUserProfileData = async () => {
-  try {
-    const {data} = await axios.get(`${backendUrl}/api/v1/user/profile-details`);
-
-    if (data.success) {
-      setUserData(data.user);
-      console.log(data.user);
-      
-    } else {
-      toast.error(data.message);
+  // Login
+  const loginUser = async (email, password) => {
+    try {
+      const { data } = await axios.post(`${backendUrl}/api/v1/auth/login`, { email, password });
+      if (data.success) {
+        setIsLoggedIn(true);
+        await fetchUserData(false);
+        toast.success("Login successful!");
+        return { success: true };
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      const message = err.response?.data?.message || "Login failed";
+      toast.error(message);
+      return { success: false, message };
     }
-  } catch (error) {
-    console.log('Error loading user profile data:', error);
-  }
- }
-
-useEffect(() => {
-  const checkAuth = async () => {
-    if (accessToken) {
-      await getAuthState(false);
-      await getUserData(false);
-    }
-    setLoading(false); // done checking
   };
 
-  checkAuth();
-}, [accessToken]);
-
-useEffect(()=> {
-  if (accessToken) {
-    loadUserProfileData()
-  }else{
-    setUserData(null)
-  }
-}, [accessToken])
-
-  const value = {
-    backendUrl,
-    isLoggedIn,
-    setIsLoggedIn,
-    userData,
-    setUserData,
-    accessToken,
-    setAccessToken,
-    getUserData,
-    loading,
-    loadUserProfileData,
+  // Logout
+  const logoutUser = async () => {
+    try {
+      await axios.post(`${backendUrl}/api/v1/users/logout`);
+      setIsLoggedIn(false);
+      setUserData(null);
+      toast.success("Logged out successfully");
+    } catch (err) {
+      console.error("Logout failed:", err);
+      toast.error("Logout failed");
+    }
   };
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  // Register
+  const registerUser = async (userData) => {
+    try {
+      const { data } = await axios.post(`${backendUrl}/api/v1/auth/register`, userData);
+      if (data.success) {
+        setIsLoggedIn(true);
+        await fetchUserData(false);
+        toast.success("Registration successful!");
+        return { success: true };
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      const message = err.response?.data?.message || "Registration failed";
+      toast.error(message);
+      return { success: false, message };
+    }
+  };
+
+  return (
+    <AppContext.Provider
+      value={{
+        backendUrl,
+        isLoggedIn,
+        setIsLoggedIn,
+        userData,
+        setUserData,
+        loading,
+        loginUser,
+        logoutUser,
+        registerUser,
+        fetchUserData,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 };

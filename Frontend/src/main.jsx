@@ -10,13 +10,20 @@ import {
 } from "react-router-dom";
 import SignupForm from "./Component/Register.jsx";
 import LoginForm from "./Component/Login.jsx";
-import Home from "./Component/Home.jsx";
+// import Home from "./Component/Home.jsx";
 import { AppContextProvider } from "./Context/AppContext.jsx";
 import EmailVerified from "./Component/EmailVerified.jsx";
 import ResetPwd from "./Component/ResetPwd.jsx";
 import PrivateRoute from "./Component/PrivateRoute.jsx";
 import ProfilePage from "./Component/Profile.jsx";
-import DashBoard from "../Pages/DashBoard.jsx";
+// import DashBoard from "./Pages/DashBoard.js";
+import DashboardPage from "./Pages/DashboardPage.jsx";
+import Customer from "./Pages/Customer.jsx";
+import Invoices from "./Pages/invoices.jsx";
+import Payment from "./Pages/Payment.jsx";
+import Items from "./Pages/Items.jsx";
+import Orders from "./Pages/Orders.jsx";
+import User from "./Pages/User.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -25,13 +32,19 @@ const router = createBrowserRouter(
         index
         element={
           <PrivateRoute>
-            <Home />
+            <DashboardPage />
           </PrivateRoute>
         }
       />
       
       {/* admin Route */}
-      <Route path="dashboard" element={<DashBoard/>}/>
+      <Route path="dashboard" element={<DashboardPage/>}/>
+      <Route path="customers" element={<Customer/>}/>
+      <Route path="orders" element={<Orders/>}/>
+      <Route path="invoices" element={<Invoices/>}/>
+      <Route path="items" element={<Items/>}/>
+      <Route path="payments" element={<Payment/>}/>
+      <Route path="users" element={<User/>}/>
       
 
       {/* Public routes */}

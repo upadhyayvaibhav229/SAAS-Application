@@ -12,10 +12,7 @@ const customerSchema = new mongoose.Schema({
     type: String,
   },
   address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
+    type: String,
   },
   tenantId: { 
     type: mongoose.Schema.Types.ObjectId,

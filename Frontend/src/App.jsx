@@ -1,27 +1,23 @@
-import React, { useEffect } from 'react'
-import axios from 'axios'
-import Register from './Component/Register'
-import LoginForm from './Component/Login'
-import { Outlet } from 'react-router-dom'
-import Navbar from './Component/Navbar'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-import Sidebar from './Component/Sidebar'
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Sidebar from './Component/Sidebar';
+import Header from './Component/Header';
 
 const App = () => {
-
   return (
-    <div className="min-h-screen max-w-[1600px] mx-auto bg-gradient-to-br from-slate-900 to-black">
-     <ToastContainer />
-      <Navbar />
-      <div className="flex">
-        <Sidebar />
-        <div className="w-[70%] mx-auto ml-[max(5vw,25px)] my-8  text-base">
+    <div className="flex h-screen ">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <ToastContainer />
+        <div className="flex-1 overflow-auto">
           <Outlet />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;
