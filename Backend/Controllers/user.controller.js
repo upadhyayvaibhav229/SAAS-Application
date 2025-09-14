@@ -1,40 +1,20 @@
 import { User } from "../Models/user.models.js";
 import { asyncHandler } from "../utils/asynchandler.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiError } from "../utils/ApiError.js";
 
-// const getUserData = asyncHandler(async (req, res) => {
-//     const {userId} = req.body;
-//     const user = await User.findById(userId).select("-password");
-//     if (!user) {
-//         return res.status(404).json({ message: "User not found" });
-//     }
-
-//     res.status(200).json({ 
-//         success: true,
-//         user: {
-//             id: user._id,
-//             email: user.email,
-//             firstName: user.firstName,
-//             lastName: user.lastName,
-
-//             isAccountVerified: user.isAccountVerified,
-//         },
-//     });
-// })
-
-
+// @desc    Get current user's data
+// @route   GET /api/users/data
+// @access  Private
 const getUserData = asyncHandler(async (req, res) => {
-  // Use id from the verified JWT user
-  const userId = req.user.id;
-
-  const user = await User.findById(userId).select("-password -refreshToken");
+  const user = await User.findById(req.user.id).select("-password -refreshToken");
   
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    throw new ApiError(404, "User not found");
   }
 
-  res.status(200).json({
-    success: true,
-    user: {
+  return res.status(200).json(
+    new ApiResponse(200, {
       id: user._id,
       email: user.email,
       firstName: user.firstName,
@@ -43,60 +23,124 @@ const getUserData = asyncHandler(async (req, res) => {
       phone: user.phone,
       location: user.location,
       role: user.role
-    },
-  });
+    }, "User data fetched successfully")
+  );
 });
 
-const getProfileDetails = asyncHandler(async (
-  req, res
-) => {
-  const userId = req.user.id;
-
-  const user = await User.findById(userId).select("-password -refreshToken");
+// @desc    Get all users for the current tenant (Admin/Owner only)
+// @route   GET /api/users/admin/users
+// @access  Private (Admin, Owner)
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({ tenantId: req.tenantId }).select("-password -refreshToken");
   
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  res.status(200).json({
-    success: true,
-    user,
-  });
-})
-
-
-const updateUser = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
-
-  const { firstName, lastName, email, phone, location, role } = req.body;
-
-  const user = await User.findByIdAndUpdate(
-    userId,
-    {
-      firstName,
-      lastName,
-      email,
-      phone,
-      location,
-      role,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  ).select("-password");
-
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  res.status(200).json({
-    success: true,
-    message: "User profile updated successfully",
-    user,
-  });
+  return res.status(200).json(
+    new ApiResponse(200, users, "Users fetched successfully")
+  );
 });
 
+// @desc    Create a new user (Admin/Owner only)
+// @route   POST /api/users/admin/users
+// @access  Private (Admin, Owner)
+const createUser = asyncHandler(async (req, res) => {
+  const { email, password, firstName, lastName, role } = req.body;
 
+  if (!email || !password || !firstName || !lastName || !role) {
+    throw new ApiError(400, "All fields are required");
+  }
 
-export { getUserData, updateUser, getProfileDetails };
+  const existingUser = await User.findOne({ 
+    email, 
+    tenantId: req.tenantId 
+  });
+  
+  if (existingUser) {
+    throw new ApiError(409, "User already exists in this tenant");
+  }
+
+  const user = await User.create({
+    email,
+    password,
+    firstName,
+    lastName,
+    role,
+    tenantId: req.tenantId
+  });
+
+  const userWithoutPassword = await User.findById(user._id).select("-password -refreshToken");
+
+  return res.status(201).json(
+    new ApiResponse(201, userWithoutPassword, "User created successfully")
+  );
+});
+
+// @desc    Update user role (Owner only)
+// @route   PATCH /api/users/admin/users/:id/role
+// @access  Private (Owner only)
+const updateUserRole = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+
+  if (!role) {
+    throw new ApiError(400, "Role is required");
+  }
+
+  if (id === req.user._id.toString()) {
+    throw new ApiError(403, "You cannot change your own role");
+  }
+
+  const user = await User.findOneAndUpdate(
+    { _id: id, tenantId: req.tenantId },
+    { role },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, user, "User role updated successfully")
+  );
+});
+
+// @desc    Delete a user (Owner only)
+// @route   DELETE /api/users/admin/users/:id
+// @access  Private (Owner only)
+const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (id === req.user._id.toString()) {
+    throw new ApiError(403, "You cannot delete yourself");
+  }
+
+  const userToDelete = await User.findOne({ _id: id, tenantId: req.tenantId });
+  if (userToDelete.role === 'owner') {
+    const ownerCount = await User.countDocuments({ 
+      tenantId: req.tenantId, 
+      role: 'owner' 
+    });
+    
+    if (ownerCount <= 1) {
+      throw new ApiError(403, "Cannot delete the last owner");
+    }
+  }
+
+  const user = await User.findOneAndDelete({ _id: id, tenantId: req.tenantId });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, null, "User deleted successfully")
+  );
+});
+
+// Export all functions
+export {
+  getUserData,
+  getUsers,
+  createUser,
+  updateUserRole,
+  deleteUser
+};

@@ -1,106 +1,105 @@
+// In user.models.js
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken"; // ✅ Added missing import
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-const userSchema = new mongoose.Schema({
-  firstName: {
-    type: String,
-    required: true,
+const userSchema = new mongoose.Schema(
+  {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+      maxLength: 50,
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true,
+      maxLength: 50,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minLength: 6,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "manager", "staff", "accountant", "viewer"],
+      default: "staff",
+    },
+    tenantId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tenant",
+      required: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    lastLogin: {
+      type: Date,
+    },
+    refreshToken: {
+      type: String,
+    },
+    isAccountVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verifyOtp: {
+      type: String,
+    },
+    verifyOtpExpiredAt: {
+      type: Date,
+    },
+    resetOtp: {
+      type: String,
+    },
+    resetOtpExpiredAt: {
+      type: Date,
+    },
   },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  phone: {
-    type: String,
-    default: "00000000000",
-  },
-  location: {
-    type: String,
-    default: "Unknown",
-  },
-  role: {
-    type: String,
-    enum: ["admin", "manager", "staff", "accountant", "user"],
-    default: "user",
-  },
-  isAccountVerified: {
-    type: Boolean,
-    default: false,
-  },
-  verifyOtp: {
-    type: String,
-    default: "",
-  },
-  verifyOtpExpiredAt: {
-    type: Number,
-    default: 0,
-  },
-  resetOtp: {
-    type: String,
-    default: "",
-  },
-  resetOtpExpiredAt: { 
-    type: Number,
-    default: 0,
-  },
-  refreshToken: {
-    type: String
-  },
+  {
+    timestamps: true,
+  }
+);
 
-  tenantId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Tenant", // Reference to the Tenant model
-  },
-});
-
-// ✅ Password encryption before saving
+// Hash password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// ✅ Password comparison method
-userSchema.methods.isPasswordCorrect = async function (enteredPassword) {
-  if (!enteredPassword || !this.password) {
-    console.error("Missing password during comparison", {
-      enteredPassword,
-      storedPassword: this.password,
-    });
-    return false;
-  }
-
-  return await bcrypt.compare(enteredPassword, this.password);
+// Check password method
+userSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
 };
 
-// ✅ Generate Access Token
+// Generate access token
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,
       email: this.email,
-      fullName: `${this.firstName} ${this.lastName}`, 
       role: this.role,
-      tenantId: this.tenantId
+      tenantId: this.tenantId,
     },
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: process.env.ACCESS_TOKEN_EXPRIY,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "1d",
     }
   );
 };
 
-// ✅ Generate Refresh Token
+// Generate refresh token
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
@@ -108,7 +107,7 @@ userSchema.methods.generateRefreshToken = function () {
     },
     process.env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "10d",
     }
   );
 };

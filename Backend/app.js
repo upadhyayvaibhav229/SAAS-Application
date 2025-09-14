@@ -3,21 +3,33 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 const app = express();
-
 const PORT = process.env.PORT || 5000;
-app.use(cors({
-    origin: "http://localhost:5173",  // replace with your frontend URL
-    credentials: true,  // Allow cookies (if you're using them)
-}));            
 
+// Middlewares
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
+// Routers
 import userRouter from "./router/user.route.js";
+import customerRouter from "./router/customer.route.js";
+import orderRouter from "./router/order.route.js";
+import dashboardRoutes from "./router/dashboard.route.js";
+import authRoutes from './router/auth.route.js';
 
+
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/customers', customerRouter);
+app.use('/api/v1/orders', orderRouter);
+app.use("/api/v1", dashboardRoutes);
 
 
-export { app }
+// http://localhost:5000/api/v1/users/register
+
+export { app };

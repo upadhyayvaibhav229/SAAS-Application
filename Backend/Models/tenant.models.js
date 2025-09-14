@@ -1,34 +1,49 @@
 import mongoose from "mongoose";
 
-const tenantSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true, // Company/Organization name
+const tenantSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+    },
+    currency: {
+      type: String,
+      default: "INR",
+    },
+    timezone: {
+      type: String,
+      default: "Asia/Kolkata",
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    settings: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
   },
-  domain: {
-    type: String,
-  },
-  plan: {
-    type: String,
-    enum: ["free", "basic", "premium"], // optional subscription plan
-    default: "free",
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-  modules: {
-    type: [String],
-    default: ["customers", "orders", "payments", "reports"]
+  {
+    timestamps: true,
   }
+);
+
+// Pre-save middleware to generate slug if not provided
+tenantSchema.pre("save", function (next) {
+  if (!this.slug && this.name) {
+    this.slug = this.name
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]+/g, "");
+  }
+  next();
 });
 
-tenantSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
-})
 export const Tenant = mongoose.model("Tenant", tenantSchema);

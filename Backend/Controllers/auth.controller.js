@@ -27,6 +27,8 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
   }
 };
 
+import slugify from "slugify";
+
 const registerUser = async (req, res) => {
   const { firstName, lastName, email, password, companyName } = req.body;
 
@@ -45,8 +47,8 @@ const registerUser = async (req, res) => {
     });
   }
 
-  // Create Tenant
-  const tenant = await Tenant.create({ name: companyName });
+  const slug = slugify(companyName, { lower: true, strict: true });
+  const tenant = await Tenant.create({ name: companyName, slug });
 
   // Create first User as admin
   const user = await User.create({
@@ -55,10 +57,9 @@ const registerUser = async (req, res) => {
     email,
     password,
     role: "admin",
-    tenantId: tenant._id,  // ✅ FIXED
+    tenantId: tenant._id,
   });
 
-  // Generate tokens
   const { accessToken, refreshToken } =
     await generateAccessTokenAndRefreshToken(user._id);
 
@@ -80,7 +81,7 @@ const registerUser = async (req, res) => {
   }
 
   return res
-    .status(201) // ✅ better than 200
+    .status(201)
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
@@ -93,6 +94,11 @@ const registerUser = async (req, res) => {
             fullName: `${user.firstName} ${user.lastName}`,
             role: user.role,
             tenantId: user.tenantId,
+          },
+          tenant: {
+            id: tenant._id,
+            name: tenant.name,
+            slug: tenant.slug, // ✅ include slug
           },
           accessToken,
           refreshToken,
