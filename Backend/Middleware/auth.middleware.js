@@ -26,9 +26,7 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
       throw new ApiError(401, "User not found");
     }
 
-    req.user = user; // attach full user doc (without password, refreshToken)
-
-    // convenience
+    req.user = user; 
     req.body = req.body || {};
     req.body.userId = user._id.toString();
 

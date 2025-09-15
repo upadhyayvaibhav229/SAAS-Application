@@ -23,7 +23,6 @@ export const createPayment = asyncHandler(async (req, res) => {
     transactionDate: new Date(),
   });
 
-  // Optionally update invoice status if paid
   if (status === "Success") {
     await Invoice.findByIdAndUpdate(invoiceId, { status: "Paid" });
   }
@@ -45,14 +44,12 @@ export const getPayment = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, payment));
 });
 
-// @desc Get all payments (tenant scoped)
 export const getPayments = asyncHandler(async (req, res) => {
   const payments = await Payment.find({ tenantId: req.tenant._id });
 
   res.json(new ApiResponse(200, payments));
 });
 
-// @desc Update payment
 export const updatePayment = asyncHandler(async (req, res) => {
   const { status } = req.body;
 
@@ -67,7 +64,6 @@ export const updatePayment = asyncHandler(async (req, res) => {
   res.json(new ApiResponse(200, payment, "Payment updated successfully"));
 });
 
-// @desc Delete payment
 export const deletePayment = asyncHandler(async (req, res) => {
   const payment = await Payment.findOneAndDelete({
     _id: req.params.id,
