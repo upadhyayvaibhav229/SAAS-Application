@@ -3,7 +3,7 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 
-import { ROLE_PERMISSIONS } from "../config/role.js"; // make sure this has admin, manager, etc.
+import { ROLE_PERMISSIONS } from "../config/role.js"; 
 
 const getUserData = asyncHandler(async (req, res) => {
   if (!req.user?._id) throw new ApiError(401, "Unauthorized");
@@ -14,7 +14,6 @@ const getUserData = asyncHandler(async (req, res) => {
 
   if (!user) throw new ApiError(404, "User not found");
 
-  // Compute permissions
   const permissions = ROLE_PERMISSIONS[user.role] || {};
 
   return res.status(200).json(
@@ -28,7 +27,7 @@ const getUserData = asyncHandler(async (req, res) => {
       tenant: user.tenantId
         ? { id: user.tenantId._id, name: user.tenantId.name, slug: user.tenantId.slug }
         : null,
-      permissions, // ✅ add permissions here
+      permissions, 
     }, "User data fetched successfully")
   );
 });
