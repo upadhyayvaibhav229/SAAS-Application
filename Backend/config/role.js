@@ -18,7 +18,7 @@ export const ROLE_PERMISSIONS = {
     settings: ['read']
   },
   staff: {
-    customers: ['create', 'read', 'update'],
+    customers: ['read'],
     orders: ['create', 'read', 'update'],
     invoices: ['create', 'read'],
     payments: ['create', 'read'],

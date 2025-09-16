@@ -47,8 +47,8 @@ const Header = () => {
     { path: "/dashboard", label: "Dashboard", show: isLoggedIn },
     { path: "/projects", label: "Projects", show: isLoggedIn && userData?.role !== "customer" },
     { path: "/profile", label: "Profile", show: isLoggedIn },
-    { path: "/about", label: "About", show: true },
-    { path: "/contact", label: "Contact", show: true },
+    { path: "/about", label: "About", show: isLoggedIn },
+    { path: "/contact", label: "Contact", show: isLoggedIn },
   ];
 
   return (
@@ -158,7 +158,7 @@ const Header = () => {
                         {userData.isAccountVerified ? (
                           <span className="ml-1 text-green-600 font-bold">Yes ✅</span>
                         ) : (
-                          <span className="ml-1 text-red-600 font-bold">No ❌</span>
+                          <Link to={"/verify-email"} className="ml-1 text-red-600 font-bold">No ❌</Link>
                         )}
                       </p>
                     </div>

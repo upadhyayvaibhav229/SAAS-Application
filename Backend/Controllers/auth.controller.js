@@ -93,6 +93,8 @@ const registerUser = async (req, res) => {
             email: user.email,
             fullName: `${user.firstName} ${user.lastName}`,
             role: user.role,
+            permissions: ROLE_PERMISSIONS[user.role],  // ✅ Add this line
+
             tenantId: user.tenantId,
           },
           tenant: {
@@ -147,6 +149,8 @@ const loginUser = async (req, res, next) => {
             email: user.email,
             fullName: `${user.firstName} ${user.lastName}`,
             role: user.role,
+            permissions: ROLE_PERMISSIONS[user.role],
+
             tenant: {
               id: user.tenantId._id,
               name: user.tenantId.name,   // ✅ Company name

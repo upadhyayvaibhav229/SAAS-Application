@@ -26,6 +26,15 @@ const Sidebar = () => {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
+  // show sidebar
+  const hasPermission = (resource) => {
+    const userRole = userData?.role;
+    const userPermissions = ROLE_PERMISSIONS[userRole] || {};
+
+    return userPermissions[resource]?.includes('read');
+  };
+
+
   // Links dynamically depend on userData and role
   const links = [
     { to: "/", label: "Dashboard", icon: <Home size={18} /> },

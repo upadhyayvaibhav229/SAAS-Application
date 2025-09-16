@@ -18,7 +18,7 @@ export const AppContextProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data } = await axios.get(`${backendUrl}/api/v1/users/isauth`);
+        const { data } = await axios.get(`${backendUrl}/api/v1/auth/isauth`);
         if (data.success) {
           setIsLoggedIn(true);
           await fetchUserData(false); // don't show toast
@@ -36,7 +36,7 @@ export const AppContextProvider = ({ children }) => {
   // Fetch user data
   const fetchUserData = async (showToast = true) => {
     try {
-      const { data } = await axios.get(`${backendUrl}/api/v1/users/data`);
+      const { data } = await axios.get(`${backendUrl}/api/v1/auth/data`);
       if (data.success) {
         setUserData(data.data);
         if (showToast) toast.success("User data fetched successfully");
@@ -69,7 +69,7 @@ export const AppContextProvider = ({ children }) => {
   // Logout
   const logoutUser = async () => {
     try {
-      await axios.post(`${backendUrl}/api/v1/users/logout`);
+      await axios.post(`${backendUrl}/api/v1/auth/logout`);
       setIsLoggedIn(false);
       setUserData(null);
       toast.success("Logged out successfully");
