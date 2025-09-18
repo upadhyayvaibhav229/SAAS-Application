@@ -25,7 +25,7 @@ router.post("/refresh-token", refershAccessToken);
 // Apply authentication to all user routes
 router.use(verifyJwt);
 
-// Protected user routes (no admin role needed)
+// Protected user routes 
 router.post("/logout", logoutUser);
 router.post("/send-otp", SendverifyOtp);
 router.post("/verify-account", verifyEmail);

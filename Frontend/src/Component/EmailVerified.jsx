@@ -40,7 +40,7 @@ const EmailVerified = () => {
       const otpArray = inputRef.current.map((e) => e.value);
       const otp = otpArray.join("");
       const { data } = await axios.post(
-        `${backendUrl}/api/users/verify-account`,
+        `${backendUrl}/api/v1/auth/verify-account`,
         { otp, userId: userData?._id || userData?.id }
       );
       if (data.success) {

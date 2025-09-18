@@ -28,6 +28,7 @@ const generateAccessTokenAndRefreshToken = async (userId) => {
 };
 
 import slugify from "slugify";
+import { ROLE_PERMISSIONS } from "../config/role.js";
 
 const registerUser = async (req, res) => {
   const { firstName, lastName, email, password, companyName } = req.body;
@@ -149,7 +150,7 @@ const loginUser = async (req, res, next) => {
             email: user.email,
             fullName: `${user.firstName} ${user.lastName}`,
             role: user.role,
-            permissions: ROLE_PERMISSIONS[user.role],
+            // permissions: ROLE_PERMISSIONS[user.role],
 
             tenant: {
               id: user.tenantId._id,
@@ -253,11 +254,6 @@ const refershAccessToken = asyncHandler(async (req, res) => {
 
 const SendverifyOtp = asyncHandler(async (req, res, next) => {
   const { userId } = req.body;
-  // console.log("received userId", userId);
-
-  // console.log(req.body, "this is req body");
-
-  // Fetch the user by userId
   const user = await User.findById(userId);
 
   if (!user) {
@@ -291,9 +287,6 @@ const SendverifyOtp = asyncHandler(async (req, res, next) => {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    // console.log("Message sent:", info);
-    // console.log("Message sent: %s", info.messageId);
-    // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
   } catch (error) {
     console.log("Error sending email:", error);
     return res.status(500).json({
@@ -352,13 +345,31 @@ const verifyEmail = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Email verified successfully"));
 });
 
+
 const isAuthenticated = asyncHandler(async (req, res) => {
   try {
-    return res.status(200).json(new ApiResponse(200, {}, "Authenticated"));
+    const token = req.cookies?.accessToken;
+    console.log(token);
+    
+
+    if (!token) {
+      throw new ApiError(401, "Not authenticated");
+    }
+
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    const user = await User.findById(decoded?._id);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid token");
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { userId: user._id }, "Authenticated"));
   } catch (error) {
     return res
-      .status(500)
-      .json(new ApiResponse(500, {}, "Unable to authenticate"));
+      .status(401)
+      .json(new ApiResponse(401, {}, "Not authenticated"));
   }
 });
 

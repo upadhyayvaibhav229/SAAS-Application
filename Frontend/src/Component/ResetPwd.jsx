@@ -20,7 +20,7 @@ const ResetPwd = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        `${backendUrl}/api/users/send-reset-otp`,
+        `${backendUrl}/api/v1/auth/send-reset-otp`,
         { email }
       );
       if (data.success) {
@@ -45,7 +45,7 @@ const ResetPwd = () => {
     e.preventDefault();
     try {
       const {data} = await axios.post(
-        `${backendUrl}/api/users/reset-password`,
+        `${backendUrl}/api/v1/auth/reset-password`,
         {email, otp, newPassword}
       )
       data.success ? toast.success(data.message)  : toast.error(data.message)

@@ -1,15 +1,21 @@
 import { useContext } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { AppContext } from "../Context/AppContext";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
-const PrivateRoute = ({ children }) => {
+const PrivateRoute = () => {
   const { isLoggedIn, loading } = useContext(AppContext);
 
-  if (loading) return <div>Loading...</div>; // show spinner or loader
+  useEffect(()=>{
+    if (!loading && !isLoggedIn) {
+      toast.info("Please login or register to access the dashbaord")
+    }
+  },[loading, isLoggedIn]);
 
-  if (!isLoggedIn) return <Navigate to="/login" replace />;
+  if (loading) return <div>Loading...</div>
 
-  return children;
+  return isLoggedIn ? <Outlet /> : <Navigate to={'/login'} replace/>
 };
 
 export default PrivateRoute;

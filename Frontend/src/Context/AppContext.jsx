@@ -21,7 +21,10 @@ export const AppContextProvider = ({ children }) => {
         const { data } = await axios.get(`${backendUrl}/api/v1/auth/isauth`);
         if (data.success) {
           setIsLoggedIn(true);
-          await fetchUserData(false); // don't show toast
+          setUserData(data.user); // backend should send user info
+        } else {
+          setIsLoggedIn(false);
+          setUserData(null);
         }
       } catch (err) {
         setIsLoggedIn(false);
@@ -30,6 +33,7 @@ export const AppContextProvider = ({ children }) => {
         setLoading(false);
       }
     };
+
     checkAuth();
   }, []);
 

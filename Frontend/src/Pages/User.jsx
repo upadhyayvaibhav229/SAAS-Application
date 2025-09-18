@@ -49,7 +49,7 @@ const User = () => {
     e.preventDefault();
     try {
       if (editUser) {
-        await userService.updateUser(editUser._id, formData);
+        await userService.updateUserRole(editUser._id, formData.role);
         toast.success("User updated successfully");
       } else {
         await userService.createUser(formData);
