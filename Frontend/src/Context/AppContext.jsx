@@ -10,32 +10,37 @@ export const AppContextProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
   // axios config
   axios.defaults.withCredentials = true;
 
+
+
+
   // Check auth on app load
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data } = await axios.get(`${backendUrl}/api/v1/auth/isauth`);
-        if (data.success) {
-          setIsLoggedIn(true);
-          setUserData(data.user); // backend should send user info
-        } else {
-          setIsLoggedIn(false);
-          setUserData(null);
-        }
-      } catch (err) {
+useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const { data } = await axios.get(`${backendUrl}/api/v1/auth/isauth`);
+      if (data.success) {
+        setIsLoggedIn(true);
+        setUserData(data.user);
+      } else {
         setIsLoggedIn(false);
         setUserData(null);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (err) {
+      setIsLoggedIn(false);
+      setUserData(null);
+    } finally {
+      setLoading(false);
+      setIsAuthReady(true); // mark auth check done
+    }
+  };
 
-    checkAuth();
-  }, []);
+  checkAuth();
+}, []);
 
   // Fetch user data
   const fetchUserData = async (showToast = true) => {
@@ -114,6 +119,7 @@ export const AppContextProvider = ({ children }) => {
         logoutUser,
         registerUser,
         fetchUserData,
+        isAuthReady,
       }}
     >
       {children}

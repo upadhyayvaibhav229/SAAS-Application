@@ -52,7 +52,7 @@ export default function SignupForm() {
     try {
       const result = await registerUser(form);
       if (result.success) {
-        navigate("/login");
+        navigate("/");
       } else {
         setError(result.message);
       }
