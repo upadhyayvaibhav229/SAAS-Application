@@ -9,7 +9,7 @@ import { AppContext } from './Context/AppContext';
 const App = () => {
   const { isAuthReady } = useContext(AppContext);
 
-if (!isAuthReady) {
+if (!isAuthReady) {     
   return <div className="flex items-center justify-center h-screen">Loading...</div>;
 }
 
