@@ -66,8 +66,8 @@ export const getCustomerById = asyncHandler(async (req, res) => {
   }
 
   return res.status(200).json(
-    new ApiResponse(200, "customer created Successfully")
-  )
+    new ApiResponse(200, customer, "Customer fetched successfully")
+  );
 });
 
 export const updateCustomer = asyncHandler(async (req, res) => {

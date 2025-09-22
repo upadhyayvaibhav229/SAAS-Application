@@ -1,5 +1,4 @@
 export default function KPICards({ stats }) {
-  // stats = [{ title: "Total Users", value: 42, icon: "👤", color: "bg-yellow-500" }, ...]
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {stats.map((stat, idx) => (

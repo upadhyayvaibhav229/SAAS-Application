@@ -7,10 +7,11 @@ export const getDashboardData = asyncHandler(async (req, res) => {
   const customerCount = await Customer.countDocuments({ tenantId: req.tenantId });
   const orderCount = await Order.countDocuments({ tenantId: req.tenantId });
   
-  const revenueResult = await Order.aggregate([
-    { $match: { tenantId: req.tenantId } },
-    { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } }
-  ]);
+ const revenueResult = await Order.aggregate([
+  { $match: { tenantId: req.tenantId, status: "paid" } },
+  { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } }
+]);
+
   const totalRevenue = revenueResult[0]?.totalRevenue || 0;
 
   const recentOrders = await Order.find({ tenantId: req.tenantId })
