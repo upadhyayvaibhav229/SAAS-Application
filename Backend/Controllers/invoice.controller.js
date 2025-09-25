@@ -51,3 +51,38 @@ export const getInvoiceById = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, { invoice }, "Invoice fetched successfully"));
 });
+
+export const updateInvoice = asyncHandler(async (req, res) => {
+  const {id} = req.params;
+  const {totalAmount, dueDate, status} = req.body;
+
+  const invoice = await Invoice.findOneAndUpdate(
+    {_id: id, tenantId: req.tenantId},
+    {$set: {totalAmount, dueDate, status}},
+    {new: true}
+  
+  )
+    .populate("customerId", "name email")
+    .populate("orderId", "orderNumber totalAmount");
+
+  if (!invoice) throw new ApiError(404, "Invoice not found");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { invoice }, "Invoice updated successfully"));
+
+})
+
+export const deleteInvoice = asyncHandler(async (req, res) => {
+  const {id} = req.params;
+  const invoice = await Invoice.findOneAndDelete({
+    _id: id,
+    tenantId: req.tenantId
+  });
+  
+  if (!invoice) throw new ApiError(404, "Invoice not found");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Invoice deleted successfully"));
+})
