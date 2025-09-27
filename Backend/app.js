@@ -21,12 +21,14 @@ import customerRouter from "./router/customer.route.js";
 import orderRouter from "./router/order.route.js";
 import dashboardRoutes from "./router/dashboard.route.js";
 import authRoutes from './router/auth.route.js';
-
+import itemsRouter from "./router/items.route.js";
 
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/customers', customerRouter);
 app.use('/api/v1/orders', orderRouter);
+app.use('/api/v1/items', itemsRouter);
+
 app.use("/api/v1", dashboardRoutes);
 
 

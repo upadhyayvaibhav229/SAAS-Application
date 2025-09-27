@@ -6,16 +6,16 @@ import { requirePermission } from "../Middleware/rbac.middleware.js";
 
 const router = express.Router();
 
-// Apply these middlewares to every route in this file
+
 router.use(verifyJwt, resolveTenant, tenantScoped);
 
 router.route("/")
-  .get(requirePermission('orders', 'read'), getOrders)     // View all orders
-  .post(requirePermission('orders', 'create'), createOrder); // Create new order
+  .get(requirePermission('orders', 'read'), getOrders)     
+  .post(requirePermission('orders', 'create'), createOrder); 
 
 router.route("/:id")
-  .get(requirePermission('orders', 'read'), getOrderById)     // View specific order
-  .patch(requirePermission('orders', 'update'), updateOrder)  // Update order
+  .get(requirePermission('orders', 'read'), getOrderById)     
+  .patch(requirePermission('orders', 'update'), updateOrder)  
   .delete(requirePermission('orders', 'delete'), deleteOrder); // Delete order
 
 

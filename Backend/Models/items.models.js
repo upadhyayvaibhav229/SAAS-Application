@@ -36,6 +36,11 @@ const itemSchema = new mongoose.Schema(
       default: 0, 
       required: true,
     },
+    defaultQuantity: {
+      type: Number,
+      default: 1,
+      required: true,
+    },
     isActive: {
       type: Boolean,
       default: true, // soft-disable instead of deleting

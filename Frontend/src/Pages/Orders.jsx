@@ -5,6 +5,7 @@ const Orders = () => {
   const [activeTab, setActiveTab] = useState("list");
   const [customers, setCustomers] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [itemsList, setItemsList] = useState([]);
   const [form, setForm] = useState({
     customerId: "",
     items: [{ name: "", quantity: 1, price: 0 }],
@@ -40,15 +41,39 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
+  // Fetch items for dropdown
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/v1/items");
+        setItemsList(res.data?.data || []);
+      } catch (err) {
+        console.error("Failed to fetch items:", err);
+        setItemsList([]);
+      }
+    };
+    fetchItems();
+  }, []);
+
   // Handle item changes
   const handleItemChange = (index, key, value) => {
     const updatedItems = [...form.items];
+
+    if (key === "name") {
+      const selectedItem = itemsList.find(i => i.name === value);
+      if (selectedItem) {
+        updatedItems[index].price = selectedItem.price;
+        updatedItems[index].quantity = selectedItem.defaultQuantity || 1;
+      }
+    }
+
     updatedItems[index][key] = key === "quantity" || key === "price" ? Number(value) : value;
 
     const total = updatedItems.reduce((sum, item) => sum + item.quantity * item.price, 0);
     setForm({ ...form, items: updatedItems, totalAmount: total });
   };
 
+  // Add / remove item rows
   const addItem = () => {
     setForm({ ...form, items: [...form.items, { name: "", quantity: 1, price: 0 }] });
   };
@@ -93,17 +118,13 @@ const Orders = () => {
       <div className="flex space-x-4 border-b">
         <button
           onClick={() => setActiveTab("list")}
-          className={`pb-2 px-4 ${
-            activeTab === "list" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"
-          }`}
+          className={`pb-2 px-4 ${activeTab === "list" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"}`}
         >
           Orders List
         </button>
         <button
           onClick={() => setActiveTab("add")}
-          className={`pb-2 px-4 ${
-            activeTab === "add" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"
-          }`}
+          className={`pb-2 px-4 ${activeTab === "add" ? "border-b-2 border-blue-600 text-blue-600" : "text-gray-500"}`}
         >
           Add Order
         </button>
@@ -164,15 +185,11 @@ const Orders = () => {
                 onChange={(e) => setForm({ ...form, customerId: e.target.value })}
               >
                 <option value="">Select Customer</option>
-                {customers?.length > 0 ? (
-                  customers.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.name} ({c.email})
-                    </option>
-                  ))
-                ) : (
-                  <option value="">No customers found</option>
-                )}
+                {customers?.map(c => (
+                  <option key={c._id} value={c._id}>
+                    {c.name} ({c.email})
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -181,16 +198,21 @@ const Orders = () => {
               <label className="block text-sm text-gray-600 mb-1">Items</label>
               {form.items.map((item, index) => (
                 <div key={index} className="flex gap-2 mb-2">
-                  {/* Item Name */}
+                  {/* Item Dropdown */}
                   <div className="flex flex-col w-1/2">
-                    <label className="text-xs text-gray-500">Item Name</label>
-                    <input
-                      type="text"
-                      placeholder="Item Name"
+                    <label className="text-xs text-gray-500">Item</label>
+                    <select
                       value={item.name}
                       onChange={(e) => handleItemChange(index, "name", e.target.value)}
                       className="border px-2 py-1 rounded w-full"
-                    />
+                    >
+                      <option value="">Select Item</option>
+                      {itemsList.map(i => (
+                        <option key={i._id} value={i.name}>
+                          {i.name} - ₹{i.price}
+                        </option>
+                      ))}
+                    </select>
                   </div>
 
                   {/* Quantity */}
@@ -198,7 +220,6 @@ const Orders = () => {
                     <label className="text-xs text-gray-500">Quantity</label>
                     <input
                       type="number"
-                      placeholder="Qty"
                       value={item.quantity}
                       onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
                       className="border px-2 py-1 rounded w-full"
@@ -210,14 +231,13 @@ const Orders = () => {
                     <label className="text-xs text-gray-500">Price</label>
                     <input
                       type="number"
-                      placeholder="Price"
                       value={item.price}
                       onChange={(e) => handleItemChange(index, "price", e.target.value)}
                       className="border px-2 py-1 rounded w-full"
                     />
                   </div>
 
-                  {/* Remove Button */}
+                  {/* Remove */}
                   {form.items.length > 1 && (
                     <button
                       type="button"
