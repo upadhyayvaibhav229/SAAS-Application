@@ -31,17 +31,18 @@ const invoiceSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  // inside your invoice schema definition (update existing schema)
   amountPaid: {
     type: Number,
     default: 0,
     min: 0
   },
-  // keep totalAmount as before
-
   dueDate: {
     type: Date,
   },
+  isActive: {
+    type: Boolean,
+    default: true,
+  }
 }, { timestamps: true });
 
 export const Invoice = mongoose.model("Invoice", invoiceSchema);

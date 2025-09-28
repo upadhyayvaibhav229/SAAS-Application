@@ -27,7 +27,7 @@ export const createInvoice = asyncHandler(async (req, res) => {
 });
 
 export const getInvoices = asyncHandler(async (req, res) => {
-  const invoices = await Invoice.find({ tenantId: req.tenantId })
+  const invoices = await Invoice.find({ tenantId: req.tenantId, isActive: true })
     .populate("customerId", "name")
     .populate("orderId", "orderNumber")
     .sort({ createdAt: -1 });
@@ -75,10 +75,20 @@ export const updateInvoice = asyncHandler(async (req, res) => {
 
 export const deleteInvoice = asyncHandler(async (req, res) => {
   const {id} = req.params;
-  const invoice = await Invoice.findOneAndDelete({
+  const invoice = await Invoice.findOneAndDelete(
+    {
     _id: id,
     tenantId: req.tenantId
-  });
+  },
+  {
+    $set: {
+      isActive: false,
+    }
+  },
+  {
+    new: true
+  }
+);
   
   if (!invoice) throw new ApiError(404, "Invoice not found");
 

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { verifyJwt } from "../Middleware/auth.middleware.js";
 import { requirePermission } from "../Middleware/rbac.middleware.js";
 import { resolveTenant, tenantScoped } from "../Middleware/tenant.middleware.js";
-import { createItem, deleteItem, getAllItems, getItemById, updateItem } from "../Controllers/item.controllers.js";
+import { createItem, deleteItem, getAllItems, getItemById, updateItem } from "../Controllers/item.controller.js";
 
 const router = Router();
 router.use(verifyJwt, resolveTenant, tenantScoped);
