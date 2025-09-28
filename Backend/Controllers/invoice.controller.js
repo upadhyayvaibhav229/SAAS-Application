@@ -2,6 +2,10 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { Invoice } from "../Models/invoice.models.js";
+import { generateInvoicePDF } from "../services/invoice.service.js";
+import { sendInvoiceEmail } from "../services/email.service.js";
+import { loginUser } from "./auth.controller.js";
+import { Tenant } from "../Models/tenant.models.js";
 
 export const createInvoice = asyncHandler(async (req, res) => {
   const { orderId, customerId, totalAmount, dueDate } = req.body;
@@ -107,3 +111,52 @@ export const deleteInvoice = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, {}, "Invoice deleted successfully"));
 })
+
+
+export const downloadInvoicePDF = async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id).populate("orderId customerId");
+
+    if (!invoice) {
+      return res.status(404).json({ success: false, message: "Invoice not found" });
+    }
+
+    const pdfBuffer = await generateInvoicePDF(invoice);
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `attachment; filename=Invoice-${invoice.invoiceNumber}.pdf`,
+    });
+
+    res.send(pdfBuffer);
+  } catch (err) {
+    console.error("PDF Download Error:", err.message);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+export const sendInvoiceEmails = async (req, res) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id)
+      .populate("orderId customerId");
+    console.log(invoice);
+    
+    if (!invoice) {
+      return res.status(404).json({ success: false, message: "Invoice not found" });
+    }
+
+    const tenant = await Tenant.findById(invoice.tenantId);
+
+    if (!tenant) {
+      return res.status(404).json({ success: false, message: "Tenant not found" });
+    }
+
+    await sendInvoiceEmail(invoice, tenant); // ✅ pass full objects
+
+    res.json({ success: true, message: "Invoice sent via email successfully" });
+  } catch (err) {
+    console.error("Email send error:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

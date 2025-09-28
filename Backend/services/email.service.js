@@ -1,17 +1,17 @@
-import transporter from "../config/nodemailer.js"; // adjust path
+import transporter from "../config/nodemailer.js";
 import { generateInvoicePDF } from "./invoice.service.js";
 
-export async function sendInvoiceEmail(invoiceData) {
-  const pdfBuffer = await generateInvoicePDF(invoiceData);
+export async function sendInvoiceEmail(invoice, tenant) {
+  const pdfBuffer = await generateInvoicePDF(invoice, tenant);
 
   await transporter.sendMail({
-    from: `"${invoiceData.companyName}" <${process.env.SMTP_USER}>`,
-    to: invoiceData.customerEmail,
-    subject: `Invoice ${invoiceData.invoiceNumber}`,
-    text: `Hello ${invoiceData.customerName},\n\nPlease find attached your invoice.`,
+    from: `"${tenant.name}" <${tenant.email || process.env.SMTP_USER}>`,
+    to: invoice.customerId.email,
+    subject: `Invoice ${invoice.invoiceNumber}`,
+    text: `Hello ${invoice.customerId.name},\n\nPlease find attached your invoice.`,
     attachments: [
       {
-        filename: `Invoice-${invoiceData.invoiceNumber}.pdf`,
+        filename: `Invoice-${invoice.invoiceNumber}.pdf`,
         content: pdfBuffer,
       },
     ],
