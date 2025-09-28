@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import { AppContext } from "../Context/AppContext";
 import "react-toastify/dist/ReactToastify.css";
+import { AppContext } from "../context/AppContext";
 
 const Items = () => {
   const { backendUrl } = useContext(AppContext);

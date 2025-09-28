@@ -1,7 +1,7 @@
-import { Invoice } from "../models/invoice.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiError } from "../utils/ApiError.js";
+import { Invoice } from "../Models/invoice.models.js";
 
 export const createInvoice = asyncHandler(async (req, res) => {
   const { orderId, customerId, totalAmount, dueDate } = req.body;
@@ -20,6 +20,17 @@ export const createInvoice = asyncHandler(async (req, res) => {
     dueDate,
     invoiceNumber,
   });
+
+  await invoice.populate([
+    {
+      path: "customerId",
+      select: "name email",
+    },
+    {
+      path: "orderId",
+      select: "orderNumber totalAmount items",
+    },
+  ])
 
   return res
     .status(201)
