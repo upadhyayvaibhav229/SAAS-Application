@@ -24,3 +24,5 @@ const InvoiceReceipt = ({ invoice }) => {
     </div>
   );
 };
+
+export default InvoiceReceipt

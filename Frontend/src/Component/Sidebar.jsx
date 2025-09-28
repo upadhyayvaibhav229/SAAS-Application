@@ -119,7 +119,7 @@ import {
   Home, Users, Package, ShoppingCart, FileText,
   CreditCard, Settings, User, LogOut
 } from "lucide-react";
-import { AppContext } from "../Context/AppContext";
+import { AppContext } from "../context/AppContext";
 
 const Sidebar = () => {
   const { userData, isLoggedIn, logoutUser } = useContext(AppContext);

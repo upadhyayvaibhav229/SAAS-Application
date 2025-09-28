@@ -1,6 +1,7 @@
   import React, { useContext, useState, useRef, useEffect } from "react";
   import { Link, useNavigate, useLocation } from "react-router-dom";
-  import { AppContext } from "../Context/AppContext";
+import { AppContext } from "../context/AppContext";
+  // import { AppContext } from "../Context/AppContext";
 
   const Header = () => {
     const { isLoggedIn, userData, logoutUser } = useContext(AppContext);
